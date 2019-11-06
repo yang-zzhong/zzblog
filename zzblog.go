@@ -7,17 +7,16 @@ import (
 
 // Blog a blog item
 type Blog struct {
-	URLID string
-	Title string
-	Tags []string
-	Category string
-	Overview string
-	Images []string
-	File string
-	Lang string
-	Langs map[string]string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	URLID string			`json:"url_id"`
+	Title string			`json:"title"`
+	Tags []string			`json:"tags"`
+	Category string			`json:"category"`
+	Overview string			`json:"overview"`
+	File string				`json:"file"`
+	Lang string				`json:"lang"`
+	Langs map[string]string	`json:"langs"`
+	CreatedAt time.Time		`json:"created_at"`
+	UpdatedAt time.Time		`json:"updated_at"`
 }
 
 const (

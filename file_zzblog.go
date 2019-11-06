@@ -21,20 +21,16 @@ import (
 
  func ensureDirExist(dir string) error {
 	stat, err := os.Stat(dir)
-	if err != nil {
-		if os.IsExist(err) {
-			return nil
-		} else {
+	if err == nil && stat.IsDir() {
+		return nil
+	}
+	if os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, 0744); err != nil {
 			return err
 		}
+		return nil
 	}
-	if stat.IsDir() {
-		return nil 
-	}
-	if err := os.MkdirAll(dir, 0744); err != nil {
-		return err
-	}
-	return nil
+	return err
  }
 
  func TraversingDir(dirpath string, handle func (pathfile string)) error {
@@ -84,7 +80,6 @@ import (
 
  func (zz *FileZzblog) build() error {
 	return TraversingDir(zz.root, func(file string) {
-		log.Printf("file: %s\n", file)
 		if path.Ext(file) != ".md" {
 			return
 		}
