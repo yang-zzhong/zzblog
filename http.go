@@ -2,6 +2,8 @@ package zzblog
 
 import (
 	httprouter "github.com/yang-zzhong/go-httprouter"
+	"net"
+	"net/http"
 )
 
 type ZzblogHttp struct {
@@ -9,10 +11,10 @@ type ZzblogHttp struct {
 	zz Zzblog
 }
 
-func NewZzblogHttp() *ZzblogHttp {
+func NewHttp(root string) *ZzblogHttp {
 	zz := new(ZzblogHttp)
 	zz.initRouter()
-	zz.zz = NewFileZzblog("./test")
+	zz.zz = NewFileZzblog(root)
 	return zz
 }
 
@@ -22,9 +24,10 @@ func (h *ZzblogHttp) initRouter() {
 
 func (h *ZzblogHttp) registerGetBlogs() {
 	h.router.OnGet("/blogs", func(w * httprouter.ResponseWriter, r * httprouter.Request) {
-		h.zz.Filter(func(_ * Blog) bool {
+		blogs := h.zz.Filter(func(_ * Blog) bool {
 			return true
 		})
+		w.Json(blogs)
 	})
 }
 
@@ -48,11 +51,16 @@ func (h *ZzblogHttp) registerGetTags() {
 	})
 }
 
-func (h *ZzblogHttp)StartHttp(addr string) {
+func (h *ZzblogHttp) Start(addr string) error {
 	h.router.Group("/api", nil, func (_ * httprouter.Router) {
 		h.registerGetCates()
 		h.registerGetBlogs()
 		h.registerGetBlog()
 		h.registerGetTags()
 	})
+	l, err := net.Listen("tcp4", addr)
+	if err != nil {
+		return err
+	}
+	return http.Serve(l, h.router)
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func TestZzblogCreateIfDataDirExist(t * testing.T) {
-	zz := NewFileZzblog("./test/")
+	zz := NewFileZzblog("../test/")
 	set := zz.Filter(func (*Blog) bool {
 		return true
 	})
