@@ -13,10 +13,11 @@ type Blog struct {
 	Category string			`json:"category"`
 	Overview string			`json:"overview"`
 	File string				`json:"file"`
+	Images []string			`json:"images"`
 	Lang string				`json:"lang"`
 	Langs map[string]string	`json:"langs"`
 	CreatedAt time.Time		`json:"created_at"`
-	UpdatedAt time.Time		`json:"updated_at"`
+	UpdatedAt time.Time		`json:"upadted_at"`
 }
 
 const (
@@ -71,7 +72,7 @@ type Zzblog interface {
 	Get(id string) *Blog
 	AddByReader(r io.Reader) (*Blog, error)
 	Add(*Blog) error
-	Filter(func(*Blog) bool) *BlogSet
+	Filter(func(*Blog) bool) BlogSet
 }
 
 type BlogSet interface {

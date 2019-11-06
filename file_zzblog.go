@@ -3,7 +3,6 @@ package zzblog
 import (
 	"os"
 	"io"
-	"log"
 	"path"
 	"io/ioutil"
 )
