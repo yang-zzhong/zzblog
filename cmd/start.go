@@ -22,7 +22,7 @@ func init() {
 		Short: "start http service",
 		Long:  `start http service`,
 		Run: func(cmd *cobra.Command, args []string) {
-			h := zzblog.NewHttp("../test/")
+			h := zzblog.NewHttp("/Users/yangzhong/development/go/src/zzblog/test/")
 			panic(h.Start(":8080"))
 		},
 	})

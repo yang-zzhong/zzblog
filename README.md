@@ -1,3 +1,19 @@
+
++---+
+
+urlid: zzblog-readme
+
+title: zzblog设计
+
+tags: #zzblog, #design
+
+category: design
+
+overview: zzblog是一个个人小型博客系统，包含一个从拓展的markdown中解析元数据的工具，一个博客索引工具。
+
++---+
+
+
 ## 介绍
 
 因为自身需要，所以想要创建一个博客后端，注意，是后端。目前市面上存在的博客系统是前后端没有分离的产品，那么，当有前端做单页应用需求时则很难满足。基于此。该项目尽提供HTTP API，且这些API仅获取数据。create数据通过提供命令行功能完成。这样，我们可以简化认证流程。
@@ -14,6 +30,7 @@
 ```
 GET /blogs
 ```
+
 #### request
 ```
 page={page}                 # 可选，第几页, 默认1
@@ -21,6 +38,7 @@ page_size={page_size}       # 可选，页大小，默认10
 tag={tag}                   # 可选，包含标签
 cate={cate}                 # 可选，分类
 ```
+
 #### response
 ```
 Content-Type: application/json

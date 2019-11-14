@@ -1,65 +1,57 @@
 package zzblog
 
 import (
-	"io"
-	"fmt"
-	"strings"
 	"errors"
-	"bytes"
+	"io"
+	"strings"
+)
+
+const (
+	sText = iota
+	sHeaderBeginLeading
+	sHeaderBegin
+	sHeader
+	sKey
+	sValLeading
+	sVal
+	sHeaderEnd
+	sHeaderEndLeading
+
+	tTitle    = "title"
+	tUrlid    = "urlid"
+	tTags     = "tags"
+	tCate     = "cate"
+	tCategory = "category"
+	tOverview = "overview"
+	tLang     = "lang"
 )
 
 // ParsedBlog a parsed result
 type ParsedBlog struct {
-	URLID 			string
-	Title 			string
-	Tags 			[]string
-	Category 		string
-	Overview 		string
-	Content 		[]byte
-	Images 			[]string
-	Lang 			string
-	Langs		   map[string]string
+	URLID    string   `json:"url_id"`
+	Title    string   `json:"title"`
+	Tags     []string `json:"tags"`
+	Category string   `json:"category"`
+	Overview string   `json:"overview"`
+	Content  []byte   `json:"contont"`
+	Lang     string   `json:"lang"`
 }
 
-const (
-	sBlog = iota
-	sTag
-	sTagContent
-	sTagBegin
-	sTagEnd
-	sTagBeginMaybeEnd
-	sTagAttrValueContent
-	sTagAttrValueContentEnd
-	sTagAttrKey
-	sTagAttrValue
-
-	tTitle = "title"
-	tUrlid = "urlid"
-	tTags = "tags"
-	tCate = "cate"
-	tCategory = "category"
-	tOverview = "overview"
-	tLang = "lang"
-)
-
-func unexcepted(b byte, col, line int) error {
-	errTemplate := "unexpected '%s' at %d line %d"
-	outBuf := make([]byte, len(errTemplate) + 16)
-	out := bytes.NewBuffer(outBuf)
-	fmt.Fprintf(out, errTemplate, b, col, line)
-	return errors.New(out.String())
+func NewParsedBlog() *ParsedBlog {
+	p := new(ParsedBlog)
+	p.Tags = []string{}
+	p.Content = []byte{}
+	p.Lang = "en"
+	return p
 }
 
-func tagNotMatch(a, b string) error {
-	errTemplate := "tag <%s>, </%s> not match" 
-	outBuf := make([]byte, len(errTemplate) + 32)
-	out := bytes.NewBuffer(outBuf)
-	fmt.Fprintf(out, errTemplate, a, b)
-	return errors.New(out.String())
+func ParseBlog(r io.Reader) *ParsedBlog {
+	parser := new(BlogParser)
+	return parser.Parse(r)
 }
 
 func isNumber(b byte) bool {
-	return b >= '0' && b <= '9' 
+	return b >= '0' && b <= '9'
 }
 
 func isAlpha(b byte) bool {
@@ -78,282 +70,144 @@ func eq(a, b string) bool {
 	return strings.ToLower(a) == strings.ToLower(b)
 }
 
-func ParseBlog(r io.Reader) (info *ParsedBlog, err error) {
-	info = new(ParsedBlog)
-	buf := make([]byte, 1)
-	var tagName, tagContent string
-	var col, line int = 0, 1
-	cache := []byte{}
-	temp := []byte{}
-	state := sBlog
-	attrkey := ""
-	attr := make(map[string]string)
+type BlogParser struct {
+	buf       []byte
+	cache     []byte
+	state     int
+	col, line int
+	key, val  []byte
+}
+
+func (p *BlogParser) Parse(r io.Reader) *ParsedBlog {
+	blog := NewParsedBlog()
+	p.buf = make([]byte, 1)
+	p.cache = []byte{}
+	p.state = sText
 	for {
-		if _, e := r.Read(buf); e != nil {
+		if _, e := r.Read(p.buf); e != nil {
 			if e == io.EOF {
-				return
+				return blog
 			}
-			err = e
-			return
+			return nil
 		}
-		char := buf[0]
-		switch state {
-		case sBlog:
-			if char == '<' {
-				temp = append(temp, char)
-				cache = []byte{}
-				state  = sTag
-				break
-			}
-			if isWhiteSpace(char) && len(info.Content) == 0 {
-				break
-			}
-			info.Content = append(info.Content, char)
-		case sTag:
-			temp = append(temp, char)
-			if isAlpha(char) {
-				cache = append(cache, char)
-				state = sTagBegin
-				break
-			}
-			state = sBlog
-			cache = []byte{}
-			info.Content = append(info.Content, temp...)
-			temp = []byte{}
-		case sTagBegin:
-			temp = append(temp, char)
-			if isW(char) {
-				cache = append(cache, char)
-				break
-			}
-			if isWhiteSpace(char) {
-				tagName = string(cache)
-				cache = []byte{}
-				state = sTagAttrKey
-				attrkey = ""
-				break
-			}
-			if char == '/' {
-				state = sTagBeginMaybeEnd
-				break
-			} 
-			if char == '>' {
-				tagName = string(cache)
-				cache = []byte{}
-				state = sTagContent
-				break
-			}
-			err = unexcepted(char, col, line)
-			return
-		case sTagBeginMaybeEnd:
-			temp = append(temp, char)
-			if char != '>' {
-				err = unexcepted(char, col, line)
-				break
-			}
-			if ok, e := tagEnded(tagName, tagContent, attr, info); e != nil {
-				err = e
-				return
-			} else if !ok {
-				info.Content = append(info.Content, temp...)
-			}
-			temp = []byte{}
-			tagName = ""
-			tagContent = ""
-			attr = make(map[string]string)
-			cache = []byte{}
-			state = sBlog
-		case sTagAttrKey:
-			temp = append(temp, char)
-			if isWhiteSpace(char) {
-				if len(cache) == 0 {
-					break
-				}
-				attr[string(cache)] = "true"
-				cache = []byte{}
-				break
-			}
-			if isAlpha(char) || isNumber(char) && len(cache) > 0 {
-				cache = append(cache, char)
-				break
-			}
-			if char == '=' {
-				attrkey = string(cache)
-				cache = []byte{}
-				state = sTagAttrValue
-				break
-			}
-			if char == '/' {
-				if len(attrkey) == 0 && len(cache) == 0 {
-					err = unexcepted(char, col, line)
-					return
-				} else if len(cache) > 0 && len(attrkey) == 0 {
-					attrkey = string(cache)
-				}
-				state = sTagBeginMaybeEnd
-				cache = []byte{}
-				break
-			}
-			err = unexcepted(char, col, line)
-			return
-		case sTagAttrValue:
-			temp = append(temp, char)
-			if isWhiteSpace(char) {
-				if len(cache) == 0 {
-					break
-				}
-				attr[attrkey] = string(cache)
-				attrkey = ""
-				state = sTagBegin
-				cache = []byte{}
-				break
-			}
-			if (char == '"' || char == '\'') && len(cache) == 0 {
-				cache = []byte{}
-				state = sTagAttrValueContent
-				break
-			}
-			cache = append(cache, char)
-		case sTagAttrValueContent:
-			temp = append(temp, char)
-			if char == '"' || char == '\'' {
-				attr[attrkey] = string(cache)
-				state = sTagAttrValueContentEnd
-				break
-			}
-			cache = append(cache, char)
-		case sTagAttrValueContentEnd:
-			temp = append(temp, char)
-			if isWhiteSpace(char) {
-				state = sTagAttrKey
-				cache = []byte{}
-				break
-			}
-			if char == '>' {
-				state = sTagContent
-				break
-			}
-			err = unexcepted(char, col, line)
-			return
-		case sTagContent:
-			temp = append(temp, char)
-			if char == '<' {
-				tagContent = string(cache)
-				cache = []byte{}
-				state = sTagEnd
-				break
-			}
-			cache = append(cache, char)
-		case sTagEnd:
-			temp = append(temp, char)
-			if char == '/' && len(cache) == 0 {
-				break
-			}
-			if isAlpha(char) || isNumber(char) && len(cache) == 0 {
-				cache = append(cache, char)
-				break
-			}
-			if char == '>' {
-				if !eq(string(cache), tagName) {
-					err = tagNotMatch(tagName, string(cache))
-					return
-				}
-				if ok, e := tagEnded(tagName, tagContent, attr, info); e != nil {
-					err = e
-					return
-				} else if !ok {
-					info.Content = append(info.Content, temp...)
-				}
-				temp = []byte{}
-				cache = []byte{}
-				state = sBlog
-				tagName = ""
-				tagContent = ""
-				attr = make(map[string]string)
-				break
-			}
-			err = unexcepted(char, col, line)
-			return
-		}
-		if char == '\n' {
-			line = line + 1
-			col = 0
-		} else {
-			col = col + 1
+		switch p.state {
+		case sText:
+			p.inText(blog)
+		case sHeaderBeginLeading:
+			p.inHeaderLeading(blog)
+		case sHeaderBegin:
+			p.inHeaderBegin(blog)
+		case sHeader:
+			p.inHeader(blog)
+		case sKey:
+			p.inKey(blog)
+		case sValLeading:
+			p.inValLeading(blog)
+		case sVal:
+			p.inVal(blog)
+		case sHeaderEndLeading:
+			p.inHeaderLeading(blog)
+		case sHeaderEnd:
+			p.inHeaderEnd(blog)
 		}
 	}
+
+	return blog
+}
+
+func (p *BlogParser) inText(blog *ParsedBlog) {
+	char := p.buf[0]
+	if char == '+' {
+		p.state = sHeaderBeginLeading
+		p.cache = append(p.cache, char)
+		return
+	}
+	blog.Content = append(blog.Content, char)
+}
+
+func (p *BlogParser) inHeaderBegin(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if char == '+' {
+		p.state = sHeader
+	} else if char != '-' {
+		p.toText(blog)
+	}
+}
+
+func (p *BlogParser) inHeader(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if isAlpha(char) {
+		p.state = sKey
+		p.key = []byte{char}
+	} else if char == '+' {
+		p.state = sHeaderEnd
+	}
+}
+
+func (p *BlogParser) inKey(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if isW(char) || char == '-' {
+		p.key = append(p.key, char)
+		return
+	} else if char == ':' {
+		p.state = sValLeading
+		return
+	}
+	p.toText(blog)
+}
+
+func (p *BlogParser) inValLeading(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if !isWhiteSpace(char) {
+		p.state = sVal
+		p.val = []byte{char}
+	}
+}
+
+func (p *BlogParser) inVal(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if char != '\n' {
+		p.val = append(p.val, char)
+		return
+	}
+	p.setBlogAttr(blog)
+	p.state = sHeader
 }
 
 func is(k string, p string) bool {
-	return strings.ToLower(k) == p;
+	return strings.ToLower(k) == p
 }
 
-func setProp(k string, v string, blog * ParsedBlog) (ok bool, err error) {
+func (p *BlogParser) setBlogAttr(blog *ParsedBlog) error {
+	k := string(p.key)
 	if is(k, tTitle) {
-		ok = true
-		err = nil
-		blog.Title = v
+		blog.Title = string(p.val)
+		return nil
 	} else if is(k, tUrlid) {
-		ok = true
-		err = handleUrlid(v, blog)
+		err := handleUrlid(string(p.val), blog)
+		return err
 	} else if is(k, tTags) {
-		ok = true
-		err = handleTags(v, blog)
+		handleTags(string(p.val), blog)
+		return nil
 	} else if is(k, tCate) || is(k, tCategory) {
-		ok = true
-		err = nil
-		blog.Category = v
+		blog.Category = string(p.val)
+		return nil
 	} else if is(k, tOverview) {
-		ok = true
-		err = nil
-		blog.Overview = v
-	}else if is(k, tLang) {
-		ok = true
-		err = nil
-		blog.Lang = v
-	} else {
-		ok = false
-		err = nil
+		blog.Overview = string(p.val)
+		return nil
+	} else if is(k, tLang) {
+		blog.Lang = string(p.val)
+		return nil
 	}
-	return
+	return errors.New("undefined key '" + k + "'")
 }
 
-func handleTags(v string, blog * ParsedBlog) error {
-	r := strings.NewReader(v)
-	buf := make([]byte, 1)
-	var sSpace, sTag int = 0, 1
-	temp := []byte{}
-	state := sSpace
-	for {
-		if l, e := r.Read(buf); e != nil {
-			if e == io.EOF {
-				return nil
-			}
-			return e
-		} else if l == 0 {
-			continue
-		}
-		switch state {
-		case sSpace:
-			if buf[0] == '[' {
-				state = sTag
-			}
-		case sTag:
-			if buf[0] == ']' {
-				blog.Tags = append(blog.Tags, string(temp))
-				temp = []byte{}
-				state = sSpace
-				break
-			}
-			if buf[0] == '[' {
-				return errors.New("an error in <tags></tags>")
-			}
-			temp = append(temp, buf[0])
-		}
-	}
-}
-
-func handleUrlid(v string, blog * ParsedBlog) error {
+func handleUrlid(v string, blog *ParsedBlog) error {
 	r := strings.NewReader(v)
 	buf := make([]byte, 1)
 	temp := []byte{}
@@ -375,14 +229,43 @@ func handleUrlid(v string, blog * ParsedBlog) error {
 	}
 }
 
-func tagEnded(name, content string, attr map[string]string, info *ParsedBlog) (ok bool, err error) {
-	k := name
-	v := content
-	if val, ok := attr["for"]; ok {
-		k = val
+func handleTags(v string, blog *ParsedBlog) {
+	tags := strings.Split(v, "#")
+	for _, tag := range tags {
+		t := strings.Trim(tag, " ,")
+		if t != "" {
+			blog.Tags = append(blog.Tags, t)
+		}
 	}
-	if val, ok := attr["value"]; ok {
-		v = val
+}
+
+func (p *BlogParser) inHeaderLeading(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if char == '-' {
+		if p.state == sHeaderBeginLeading {
+			p.state = sHeaderBegin
+		} else {
+			p.state = sHeaderEnd
+		}
+		return
 	}
-	return setProp(k, v, info)
+	p.toText(blog)
+}
+
+func (p *BlogParser) inHeaderEnd(blog *ParsedBlog) {
+	char := p.buf[0]
+	p.cache = append(p.cache, char)
+	if char == '+' {
+		p.state = sText
+		p.cache = []byte{}
+	} else if char != '-' {
+		p.toText(blog)
+	}
+}
+
+func (p *BlogParser) toText(blog *ParsedBlog) {
+	p.state = sText
+	blog.Content = append(blog.Content, p.cache...)
+	p.cache = []byte{}
 }

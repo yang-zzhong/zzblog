@@ -1,37 +1,52 @@
 package zzblog
 
 import (
-	"time"
 	"io"
+	"os"
+	"sort"
+	"time"
 )
 
 // Blog a blog item
 type Blog struct {
-	URLID string			`json:"url_id"`
-	Title string			`json:"title"`
-	Tags []string			`json:"tags"`
-	Category string			`json:"category"`
-	Overview string			`json:"overview"`
-	File string				`json:"file"`
-	Images []string			`json:"images"`
-	Lang string				`json:"lang"`
-	Langs map[string]string	`json:"langs"`
-	CreatedAt time.Time		`json:"created_at"`
-	UpdatedAt time.Time		`json:"upadted_at"`
+	URLID     string    `json:"url_id"`
+	Title     string    `json:"title"`
+	Tags      []string  `json:"tags"`
+	Category  string    `json:"category"`
+	Overview  string    `json:"overview"`
+	Lang      string    `json:"lang"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"upadted_at"`
+	file      string
+}
+
+func (b *Blog) SetFile(file string) {
+	b.file = file
+}
+
+func (b *Blog) Detail() (blog *ParsedBlog, err error) {
+	file, e := os.Open(b.file)
+	if e != nil {
+		e = err
+		return
+	}
+	defer file.Close()
+	blog = ParseBlog(file)
+	return
 }
 
 const (
-	ST_ASC = 0
-	ST_DESC = 1
-	SC_TIME = 3
+	ST_ASC   = 0
+	ST_DESC  = 1
+	SC_TIME  = 3
 	SC_TITLE = 4
-	SC_ID = 5
+	SC_ID    = 5
 )
 
 type MBlogSet struct {
-	blogs []*Blog
-	sort map[int]int
-	page int
+	blogs    []*Blog
+	sort     map[int]int
+	page     int
 	pageSize int
 }
 
@@ -55,7 +70,36 @@ func (set *MBlogSet) Page(p, ps int) BlogSet {
 	return set
 }
 
+func (set *MBlogSet) Len() int {
+	return len(set.blogs)
+}
+
+func (set *MBlogSet) Less(i, j int) bool {
+	for k, v := range set.sort {
+		if k == SC_TIME {
+			if v == ST_ASC {
+				return set.blogs[i].UpdatedAt.Before(set.blogs[j].UpdatedAt)
+			}
+			return set.blogs[j].UpdatedAt.Before(set.blogs[i].UpdatedAt)
+		} else if k == SC_TITLE {
+			if v == ST_ASC {
+				return set.blogs[i].Title > set.blogs[j].Title
+			}
+			return set.blogs[i].Title < set.blogs[j].Title
+		}
+	}
+
+	return true
+}
+
+func (set *MBlogSet) Swap(i, j int) {
+	blog := *set.blogs[i]
+	*set.blogs[i] = *set.blogs[j]
+	*set.blogs[j] = blog
+}
+
 func (set *MBlogSet) Get() []*Blog {
+	sort.Sort(set)
 	if set.page == 0 {
 		return set.blogs
 	}
@@ -68,10 +112,14 @@ func (set *MBlogSet) Get() []*Blog {
 }
 
 type Zzblog interface {
-	Has(id string) bool
-	Get(id string) *Blog
+	Has(id, lang string) bool
+	Get(id, lang string) *Blog
 	AddByReader(r io.Reader) (*Blog, error)
 	Add(*Blog) error
+	AddImage(r ImageReader) error
+	GetImage(id string) *Image
+	Cates(lang string) []string
+	Tags(lang string) []string
 	Filter(func(*Blog) bool) BlogSet
 }
 
