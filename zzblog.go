@@ -112,6 +112,7 @@ func (set *MBlogSet) Get() []*Blog {
 }
 
 type Zzblog interface {
+	Init() error
 	Has(id, lang string) bool
 	Get(id, lang string) *Blog
 	AddByReader(r io.Reader) (*Blog, error)

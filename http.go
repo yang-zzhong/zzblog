@@ -2,7 +2,6 @@ package zzblog
 
 import (
 	httprouter "github.com/yang-zzhong/go-httprouter"
-	"log"
 	"net"
 	"net/http"
 )
@@ -16,6 +15,9 @@ func NewHttp(root string) *ZzblogHttp {
 	zz := new(ZzblogHttp)
 	zz.initRouter()
 	zz.zz = NewFileZzblog(root)
+	if err := zz.zz.Init(); err != nil {
+		panic(err)
+	}
 	return zz
 }
 
@@ -57,9 +59,6 @@ func (h *ZzblogHttp) registerGetBlogs() {
 			}
 			return tm && tc && lc
 		}).Page(page, pageSize).Get()
-		for _, blog := range blogs {
-			log.Printf("%v\n", blog)
-		}
 		w.Json(blogs)
 	})
 }
@@ -86,6 +85,36 @@ func (h *ZzblogHttp) registerGetBlog() {
 	})
 }
 
+func (h *ZzblogHttp) registerForImage() {
+	h.router.OnGet("/images/:hash", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
+		id := r.Bag.Get("hash").(string)
+		img := h.zz.GetImage(id)
+		if img == nil {
+			w.WithStatusCode(404)
+			return
+		}
+		w.WithHeader("Content-Type", img.MimeType())
+		if err := img.Output(w, uint(r.FormInt("w")), uint(r.FormInt("h"))); err != nil {
+			w.WithStatusCode(500)
+		}
+	})
+	h.router.OnPost("/images", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
+		src, _, err := r.FormFile("image")
+		if r.FormValue("token") != "" {
+			w.WithStatusCode(403)
+			return
+		}
+		if err != nil {
+			w.WithStatusCode(500)
+			return
+		}
+		err = h.zz.AddImage(src)
+		if err != nil {
+			w.WithStatusCode(500)
+		}
+	})
+}
+
 func (h *ZzblogHttp) registerGetCates() {
 	h.router.OnGet("/cates", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
 		w.Json(h.zz.Cates("en"))
@@ -99,11 +128,15 @@ func (h *ZzblogHttp) registerGetTags() {
 }
 
 func (h *ZzblogHttp) Start(addr string) error {
-	h.router.Group("/api", nil, func(_ *httprouter.Router) {
+	ms := []httprouter.Middleware{
+		&AcrossDomain,
+	}
+	h.router.Group("/api", ms, func(_ *httprouter.Router) {
 		h.registerGetCates()
 		h.registerGetBlogs()
 		h.registerGetBlog()
 		h.registerGetTags()
+		h.registerForImage()
 	})
 	l, err := net.Listen("tcp4", addr)
 	if err != nil {

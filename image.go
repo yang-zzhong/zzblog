@@ -36,7 +36,7 @@ type Image struct {
 	Pathfile      string
 }
 
-func (img *Image) Write(w io.Writer, width, height uint) error {
+func (img *Image) Output(w io.Writer, width, height uint) error {
 	var bitmap image.Image
 	f, err := os.Open(img.Pathfile)
 	if err != nil {

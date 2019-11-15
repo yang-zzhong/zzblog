@@ -24,7 +24,7 @@ func ensureDirExist(dir string) error {
 		return nil
 	}
 	if os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, 0744); err != nil {
+		if err := os.MkdirAll(dir, 0755); err != nil {
 			return err
 		}
 		return nil
@@ -33,9 +33,9 @@ func ensureDirExist(dir string) error {
 }
 
 func TraversingDir(dirpath string, handle func(pathfile string)) error {
-	dir, e := ioutil.ReadDir(dirpath)
-	if e != nil {
-		return e
+	dir, err := ioutil.ReadDir(dirpath)
+	if err != nil {
+		return err
 	}
 	for _, file := range dir {
 		pathfile := path.Join(dirpath, file.Name())
@@ -66,30 +66,38 @@ type FileZzblog struct {
 
 func NewFileZzblog(root string) *FileZzblog {
 	zz := new(FileZzblog)
-	zz.images = make(map[string]*Image)
 	zz.root = root
-	if err := ensureDirExist(zz.blogDir()); err != nil {
-		panic(err)
-	}
-	if err := zz.Rebuild(); err != nil {
-		panic(err)
-	}
 	return zz
 }
 
-func (zz *FileZzblog) Rebuild() error {
+func (zz *FileZzblog) Init() error {
 	zz.meta = make(map[string]*Blog)
 	zz.cates = []StringWithLang{}
 	zz.tags = []StringWithLang{}
+	zz.images = make(map[string]*Image)
 	return zz.build()
 }
 
 func (zz *FileZzblog) build() error {
-	return TraversingDir(zz.root, func(file string) {
+	if err := ensureDirExist(zz.blogDir()); err != nil {
+		return err
+	}
+	err := TraversingDir(zz.blogDir(), func(file string) {
 		ext := path.Ext(file)
 		if ext == ".md" {
 			zz.addBlog(file)
-		} else if ext == ".png" || ext == ".jpeg" || ext == ".jpg" || ext == ".gif" {
+		}
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+	if err := ensureDirExist(zz.imageDir()); err != nil {
+		return err
+	}
+	return TraversingDir(zz.root, func(file string) {
+		ext := path.Ext(file)
+		if ext == ".png" || ext == ".bmp" || ext == ".jpeg" || ext == ".jpg" || ext == ".gif" {
 			zz.addImage(file)
 		}
 	})
@@ -115,7 +123,7 @@ func (zz *FileZzblog) AddImage(r ImageReader) error {
 	if _, ok := zz.images[img.Id]; ok {
 		return nil
 	}
-	pathfile := path.Join(zz.root, "images", img.Id+getImageExt(img.Format))
+	pathfile := path.Join(zz.imageDir(), img.Id+getImageExt(img.Format))
 	f, err := os.OpenFile(pathfile, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
@@ -150,15 +158,16 @@ func (zz *FileZzblog) addBlog(file string) error {
 	}
 	blog.SetFile(file)
 	info, e := f.Stat()
-	if e == nil {
+	if e != nil {
 		return e
 	}
 	blog.UpdatedAt = info.ModTime()
 	// u := info.Sys()
 	// if u != nil {
 	// 	stat := u.(*syscall.Stat_t)
-	// 	log.Printf("%v\n", stat.Mtim)
-	// 	// blog.CreatedAt = time.Unix(int64(ts.Sec), int64(ts.Nsec))
+	// 	log.Printf("%v\n", stat.Ctim)
+	// 	ts := stat.Ctim
+	// 	blog.CreatedAt = time.Unix(int64(ts.Sec), int64(ts.Nsec))
 	// }
 	return nil
 }
@@ -198,6 +207,9 @@ func (zz *FileZzblog) AddByReader(r io.Reader) (blog *Blog, err error) {
 }
 
 func (zz *FileZzblog) Add(blog *Blog) error {
+	if blog.URLID == "" {
+		return errors.New("has no urlid field")
+	}
 	zz.meta[zz.id(blog.URLID, blog.Lang)] = blog
 	zz.updateTag(blog.Lang, blog.Tags)
 	zz.updateCate(blog.Lang, blog.Category)
@@ -216,6 +228,10 @@ func (zz *FileZzblog) Filter(filter func(*Blog) bool) BlogSet {
 
 func (zz *FileZzblog) blogDir() string {
 	return path.Join(zz.root, "blogs")
+}
+
+func (zz *FileZzblog) imageDir() string {
+	return path.Join(zz.root, "images")
 }
 
 func (zz *FileZzblog) updateCate(lang string, cate string) {

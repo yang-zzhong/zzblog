@@ -1,20 +1,13 @@
 package zzblog
 
 import (
-	"testing"
 	"log"
+	"testing"
 )
 
-func TestZzblogCreateIfDataDirExist(t * testing.T) {
-	zz := NewFileZzblog("../test/")
-	set := zz.Filter(func (*Blog) bool {
-		return true
-	})
-	for _, b := range set.Get() {
-		log.Printf("%v\n", b)
-	}
-}
+func TestTraversingDir(t *testing.T) {
+	log.Printf("testing traversing\n")
+	TraversingDir("./test/", func(pathfile string) {
 
-func TestZzblogCreateIfDataDirNotExist(t * testing.T) {
-	NewFileZzblog("./not-exists/")
+	})
 }

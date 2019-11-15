@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"zzblog"
 )
@@ -22,7 +22,7 @@ func init() {
 		Short: "start http service",
 		Long:  `start http service`,
 		Run: func(cmd *cobra.Command, args []string) {
-			h := zzblog.NewHttp("/Users/yangzhong/development/go/src/zzblog/test/")
+			h := zzblog.NewHttp("/Users/yangzhong/dev/go/src/zzblog/test/root")
 			panic(h.Start(":8080"))
 		},
 	})

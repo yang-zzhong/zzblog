@@ -7,7 +7,7 @@ import (
 )
 
 func TestParseBlog(t *testing.T) {
-	f, e := os.Open("./test/blogs/blog.md")
+	f, e := os.Open("./test/root/blogs/blog.md")
 	if e != nil {
 		log.Print(e)
 		return
