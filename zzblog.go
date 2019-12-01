@@ -119,6 +119,9 @@ func (set *MBlogSet) Get() []*Blog {
 		return set.blogs
 	}
 	b := (set.page - 1) * set.pageSize
+	if b > len(set.blogs) {
+		return []*Blog{}
+	}
 	e := set.page * set.pageSize
 	if e > len(set.blogs) {
 		e = len(set.blogs)

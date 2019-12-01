@@ -85,7 +85,7 @@ class List extends Page {
     return model.queryBlogs(params).then(blogs => {
       this.setState({
         loading: false,
-        noMore: blogs.length === 0,
+        noMore: blogs.length < 10,
         blogs: blogs || []
       });
       if (old === 'blogs') {
@@ -238,7 +238,7 @@ class List extends Page {
       const b = this.state.blogs.length;
       blogs = this.state.blogs.concat(blogs || []);
       this.setState({
-        noMore: blogs.length === 0,
+        noMore: blogs.length < 10,
         blogs: blogs,
         loading: false
       });

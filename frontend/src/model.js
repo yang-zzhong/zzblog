@@ -86,7 +86,7 @@ model.userInfo = function() {
 
 model.nextBlogs = function() {
   let params = model.blogs_params;
-  // params.page += 1;
+  params.page += 1;
   return model.queryBlogs(params);
 };
 
