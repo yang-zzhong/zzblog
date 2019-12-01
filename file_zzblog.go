@@ -1,9 +1,11 @@
 package zzblog
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 )
@@ -91,14 +93,16 @@ func (zz *FileZzblog) build() error {
 	if err != nil {
 		return err
 	}
-	return nil
 	if err := ensureDirExist(zz.imageDir()); err != nil {
 		return err
 	}
-	return TraversingDir(zz.root, func(file string) {
+	return TraversingDir(zz.imageDir(), func(file string) {
 		ext := path.Ext(file)
 		if ext == ".png" || ext == ".bmp" || ext == ".jpeg" || ext == ".jpg" || ext == ".gif" {
-			zz.addImage(file)
+			err := zz.addImage(file)
+			if err != nil {
+				log.Printf("add image error: %s\n", err.Error())
+			}
 		}
 	})
 }
@@ -141,6 +145,16 @@ func (zz *FileZzblog) GetImage(id string) *Image {
 	return img
 }
 
+func (zz *FileZzblog) GetImageByFilename(filename string) *Image {
+	for _, img := range zz.images {
+		pf := path.Join(zz.imageDir(), filename)
+		if pf == img.Pathfile {
+			return img
+		}
+	}
+	return nil
+}
+
 func (zz *FileZzblog) getImage(id string) (img *Image, ok bool) {
 	img, ok = zz.images[id]
 	return
@@ -181,6 +195,7 @@ func (zz *FileZzblog) Get(id string, lang string) *Blog {
 	if blog, ok := zz.meta[zz.id(id, lang)]; !ok {
 		return nil
 	} else {
+		log.Printf("%s, %s, %v, %v\n", id, lang, zz.meta, blog)
 		return blog
 	}
 }
@@ -202,6 +217,7 @@ func (zz *FileZzblog) AddByReader(r io.Reader) (blog *Blog, err error) {
 	blog.Category = p.Category
 	blog.Overview = p.Overview
 	blog.Lang = p.Lang
+	blog.Image = p.Image
 	zz.Add(blog)
 	return
 }
@@ -286,4 +302,20 @@ func (zz *FileZzblog) Tags(lang string) []string {
 		}
 	}
 	return tags
+}
+
+func (zz *FileZzblog) Author() *Author {
+	var author Author
+	file, err := os.Open(path.Join(zz.root, "author.json"))
+	if err != nil {
+		log.Printf("%v\n", err)
+		return nil
+	}
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&author); err != nil {
+		log.Printf("%v\n", err)
+		return nil
+	}
+
+	return &author
 }

@@ -15,9 +15,24 @@ type Blog struct {
 	Category  string    `json:"category"`
 	Overview  string    `json:"overview"`
 	Lang      string    `json:"lang"`
+	Image     string    `json:"image"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"upadted_at"`
 	file      string
+}
+
+type Contact struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+	Href  string `json:"href"`
+}
+
+type Author struct {
+	Name     string    `json:"name"`
+	Bio      string    `json:"bio"`
+	Avatar   string    `json:"avatar"`
+	Bg       string    `json:"bg"`
+	Contacts []Contact `json:"contacts"`
 }
 
 func (b *Blog) SetFile(file string) {
@@ -119,8 +134,10 @@ type Zzblog interface {
 	Add(*Blog) error
 	AddImage(r ImageReader) error
 	GetImage(id string) *Image
+	GetImageByFilename(filename string) *Image
 	Cates(lang string) []string
 	Tags(lang string) []string
+	Author() *Author
 	Filter(func(*Blog) bool) BlogSet
 }
 

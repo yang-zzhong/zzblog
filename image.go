@@ -36,27 +36,29 @@ type Image struct {
 	Pathfile      string
 }
 
-func (img *Image) Output(w io.Writer, width, height uint) error {
+func (img *Image) Resize(width, height uint) (bs []byte, err error) {
 	var bitmap image.Image
-	f, err := os.Open(img.Pathfile)
-	if err != nil {
-		panic(err)
+	f, e := os.Open(img.Pathfile)
+	if e != nil {
+		err = e
+		return
 	}
 	defer f.Close()
 	var buf bytes.Buffer
 	if img.Format == ImageGif {
 		io.Copy(&buf, f)
-		return nil
+		bs = buf.Bytes()
+		return
 	}
 	if bitmap, err = decodeImage(img.Format, f); err != nil {
-		panic(err)
+		return
 	}
 	width, height = size(uint(img.Width), uint(img.Height), width, height, img.Format)
 	resized := resize.Resize(width, height, bitmap, resize.NearestNeighbor)
-	if err = encodeImage(w, img.Format, resized); err != nil {
-		return err
+	if err = encodeImage(&buf, img.Format, resized); err == nil {
+		bs = buf.Bytes()
 	}
-	return nil
+	return
 }
 
 func (img *Image) MimeType() string {
@@ -210,7 +212,7 @@ func getImage(file string) (img *Image, err error) {
 	}
 	defer f.Close()
 	img, err = getImageFromFile(f)
-	if err != nil {
+	if err == nil {
 		img.Pathfile = file
 	}
 	return

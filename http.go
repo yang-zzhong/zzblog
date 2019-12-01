@@ -2,6 +2,7 @@ package zzblog
 
 import (
 	httprouter "github.com/yang-zzhong/go-httprouter"
+	"log"
 	"net"
 	"net/http"
 )
@@ -11,9 +12,9 @@ type ZzblogHttp struct {
 	zz     Zzblog
 }
 
-func NewHttp(root string) *ZzblogHttp {
+func NewHttp(root string, docroot string) *ZzblogHttp {
 	zz := new(ZzblogHttp)
-	zz.initRouter()
+	zz.initRouter(docroot)
 	zz.zz = NewFileZzblog(root)
 	if err := zz.zz.Init(); err != nil {
 		panic(err)
@@ -21,8 +22,12 @@ func NewHttp(root string) *ZzblogHttp {
 	return zz
 }
 
-func (h *ZzblogHttp) initRouter() {
+func (h *ZzblogHttp) initRouter(docroot string) {
 	h.router = httprouter.NewRouter()
+	h.router.DocRoot = docroot
+	if h.router.DocRoot == "" {
+		h.router.Tries = []string{httprouter.Api}
+	}
 }
 
 func (h *ZzblogHttp) registerGetBlogs() {
@@ -88,15 +93,24 @@ func (h *ZzblogHttp) registerGetBlog() {
 func (h *ZzblogHttp) registerForImage() {
 	h.router.OnGet("/images/:hash", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
 		id := r.Bag.Get("hash").(string)
+		log.Printf("id: %s\n", id)
 		img := h.zz.GetImage(id)
 		if img == nil {
+			img = h.zz.GetImageByFilename(id)
+		}
+		if img == nil {
 			w.WithStatusCode(404)
+			w.String("not found")
 			return
 		}
 		w.WithHeader("Content-Type", img.MimeType())
-		if err := img.Output(w, uint(r.FormInt("w")), uint(r.FormInt("h"))); err != nil {
+		bs, err := img.Resize(uint(r.FormInt("w")), uint(r.FormInt("h")))
+		if err != nil {
 			w.WithStatusCode(500)
 		}
+		w.Write(bs)
+		w.WithHeader("Content-Type", img.MimeType())
+		w.WithStatusCode(200)
 	})
 	h.router.OnPost("/images", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
 		src, _, err := r.FormFile("image")
@@ -127,6 +141,18 @@ func (h *ZzblogHttp) registerGetTags() {
 	})
 }
 
+func (h *ZzblogHttp) registerAuthor() {
+	h.router.OnGet("/author", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
+		author := h.zz.Author()
+		if author != nil {
+			w.Json(h.zz.Author())
+			return
+		}
+		w.WithStatusCode(404)
+		w.String("not found")
+	})
+}
+
 func (h *ZzblogHttp) Start(addr string) error {
 	ms := []httprouter.Middleware{
 		&AcrossDomain,
@@ -137,6 +163,7 @@ func (h *ZzblogHttp) Start(addr string) error {
 		h.registerGetBlog()
 		h.registerGetTags()
 		h.registerForImage()
+		h.registerAuthor()
 	})
 	l, err := net.Listen("tcp4", addr)
 	if err != nil {

@@ -1,0 +1,19 @@
+{
+  "name": "Iron.Y",
+  "bio": "People is not just a body",
+  "avatar": "http://localhost:8080/api/images/avatar.jpg",
+  "bg": "http://localhost:8080/api/images/bg.png",
+  "contacts": [{
+    "label": "email",
+    "value": "hackyoung110@gmail.com",
+    "href": ""
+  }, {
+    "label": "github",
+    "value": "Iron.Y's github 1",
+    "href": "https://github.com/yang-zzhong"
+  }, {
+    "label": "github",
+    "value": "Iron.Y's github 2",
+    "href": "https://github.com/hackyoung"
+  }]
+}

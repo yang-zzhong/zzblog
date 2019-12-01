@@ -27,16 +27,13 @@ const mainColStyles = makeStyles(theme => ({
     width: '100%',
     color: 'inherit',
     background: 'inherit',
-    [theme.breakpoints.up('md')]: {
-      width: 'calc(70% - 40px)',
-    }
   }
 }));
 
-export function MainCol(props) {
+export const MainCol = React.forwardRef((props, ref) => {
   const classes = mainColStyles();
-  return <div className={classes.mainCol}>{props.children}</div>
-}
+  return <div className={classes.mainCol} ref={ref}>{props.children}</div>
+});
 
 const secondColStyles = makeStyles(theme => ({
   secondCol: {
@@ -45,7 +42,18 @@ const secondColStyles = makeStyles(theme => ({
     color: 'inherit',
     [theme.breakpoints.up('md')]: {
       display: 'block',
-      width: 'calc(30%)'
+      paddingLeft: '20px',
+      width: '400px'
+    },
+    [theme.breakpoints.up('lg')]: {
+      display: 'block',
+      paddingLeft: '20px',
+      width: '500px'
+    },
+    [theme.breakpoints.up('xl')]: {
+      display: 'block',
+      paddingLeft: '20px',
+      width: '600px'
     }
   }
 }));

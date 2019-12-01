@@ -1,8 +1,9 @@
 import React from 'react';
 import {withStyles} from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import List from './List';
-import Blog from './Blog';
 import model from './model';
+import Blog from './Blog';
 import 'boo-route';
 
 const styles = (theme => {
@@ -10,10 +11,17 @@ const styles = (theme => {
     header: {
       height: '40vh',
       backgroundColor: 'black',
-      backgroundImage: 'url(https://i.ytimg.com/vi/g55cDsjzitg/maxresdefault.jpg)',
       backgroundPosition: 'center center',
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
+      borderBottom: '1px solid #f0f0f0',
+      width: '100vw'
+    },
+    loading: {
+      position: 'fixed',
+      zIndex: 100,
+      left: '0px',
+      top: '0px',
       width: '100vw'
     },
     main: {
@@ -56,22 +64,44 @@ const styles = (theme => {
   }
 });
 
+const ColorLinearProgress = withStyles({
+  colorPrimary: {
+    backgroundColor: '#b2dfdb',
+  },
+  barColorPrimary: {
+    backgroundColor: '#00695c',
+  },
+})(LinearProgress);
+
 class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      pageName: ''
+      pageName: '',
+      loading: false
     };
-    this.list = React.createRef();
-    this.blog = React.createRef();
+    this.pages = {
+      blogs: React.createRef(),
+      blog: React.createRef()
+    };
+    this.header = React.createRef();
   }
 
   componentDidMount() {
     window.boo.location(ctx => {
       window.boo.route(ctx.pathname, this.routeRules(), (pageName, tail) => {
-        this.setPage(pageName);
+        this.setState({loading: true});
+        this.setPage(pageName).then(() => {
+          this.setState({loading: false});
+        });
       });
+    });
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    model.userInfo().then(info => {
+      this.header.current.style.backgroundImage = 'url('+info.bg+')';
     });
   }
 
@@ -97,27 +127,39 @@ class App extends React.Component {
           page.setAttribute('selected', 'true');
         }
       });
+      return new Promise(r => r());
+    };
+    const leave = () => {
+      if (this.pageName) {
+        const old = this.pages[this.pageName].current;
+        return old.exitAnimation().then(old.leave());
+      }
+      return new Promise(r => r());
     }
-    if (pageName === 'blogs') {
-      model.blogs().then(() => goto());
-    } else if (pageName === 'blog') {
-      model.blog().then(() => goto());
-    }
+    return this.pages[pageName].current.enter(this.pageName).then(() => {
+      if (this.pageName === pageName) {
+        return new Promise(r => r());
+      }
+      return leave().then(goto()).then(this.pages[pageName].current.scrollTo()).then(() => {
+        this.pageName = pageName;
+        return this.pages[this.pageName].current.entryAnimation();
+      });
+    });
   }
 
   render() {
     const { classes } = this.props;
     return (
       <div className={classes.app}>
-        <header className={classes.header}>
-        </header>
+        {this.state.loading && (<ColorLinearProgress className={classes.loading} />)}
+        <header ref={this.header} className={classes.header}></header>
         <div className={classes.main}>
           <main className={classes.mainwrapper} ref="wrapper">
             <div className={classes.page} page="true" id="blogs">
-              <List ref={this.list} />
+              <List ref={this.pages.blogs} />
             </div>
             <div className={classes.page} page="true" id="blog">
-              <Blog ref={this.blog} />
+              <Blog ref={this.pages.blog} />
             </div>
           </main>
         </div>

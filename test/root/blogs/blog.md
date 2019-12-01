@@ -3,6 +3,8 @@
 
 title: 这是个测试题目
 
+image: http://localhost:8080/api/images/bg.png
+
 urlid: this-is-test-url
 
 overview: 如果你有信息做好这个，那么就做吧

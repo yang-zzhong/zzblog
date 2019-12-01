@@ -1,6 +1,7 @@
 package zzblog
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"strings"
@@ -23,18 +24,21 @@ const (
 	tCate     = "cate"
 	tCategory = "category"
 	tOverview = "overview"
+	tImage    = "image"
+	tImg      = "img"
 	tLang     = "lang"
 )
 
 // ParsedBlog a parsed result
 type ParsedBlog struct {
-	URLID    string   `json:"url_id"`
-	Title    string   `json:"title"`
-	Tags     []string `json:"tags"`
-	Category string   `json:"category"`
-	Overview string   `json:"overview"`
-	Content  []byte   `json:"contont"`
-	Lang     string   `json:"lang"`
+	URLID    string
+	Title    string
+	Tags     []string
+	Category string
+	Overview string
+	Content  []byte
+	Image    string
+	Lang     string
 }
 
 func NewParsedBlog() *ParsedBlog {
@@ -43,6 +47,35 @@ func NewParsedBlog() *ParsedBlog {
 	p.Content = []byte{}
 	p.Lang = "en"
 	return p
+}
+
+func (blog *ParsedBlog) UnmarshalJSON(b []byte) error {
+	d := make(map[string]interface{})
+	if err := json.Unmarshal(b, &d); err != nil {
+		return err
+	}
+	blog.URLID = d["url_id"].(string)
+	blog.Title = d["title"].(string)
+	blog.Tags = d["tags"].([]string)
+	blog.Category = d["category"].(string)
+	blog.Content = []byte(d["content"].(string))
+	blog.Lang = d["lang"].(string)
+
+	return nil
+}
+
+func (blog *ParsedBlog) MarshalJSON() ([]byte, error) {
+	d := make(map[string]interface{})
+
+	d["url_id"] = blog.URLID
+	d["title"] = blog.Title
+	d["tags"] = blog.Tags
+	d["category"] = blog.Category
+	d["overview"] = blog.Overview
+	d["content"] = string(blog.Content)
+	d["lang"] = blog.Lang
+
+	return json.Marshal(d)
 }
 
 func ParseBlog(r io.Reader) *ParsedBlog {
@@ -203,6 +236,8 @@ func (p *BlogParser) setBlogAttr(blog *ParsedBlog) error {
 	} else if is(k, tLang) {
 		blog.Lang = string(p.val)
 		return nil
+	} else if is(k, tImg) || is(k, tImage) {
+		blog.Image = string(p.val)
 	}
 	return errors.New("undefined key '" + k + "'")
 }
