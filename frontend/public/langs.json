@@ -1,0 +1,30 @@
+{
+  "en": {
+    "__label": "English",
+    "all": "all",
+    "tag": "TAG",
+    "cate": "CATEGORY",
+    "published": "published",
+    "edited": "last modified",
+    "loadMore": "LOAD MORE",
+    "daysAgo": "{days} days ago",
+    "minsAgo": "{minuts} mins ago",
+    "hoursAgo": "{hours} hours ago",
+    "at": "{days}/{months}/{years}",
+    "noMore": "No more data >_<!!"
+  },
+  "zh-CN": {
+    "__label": "简体中文",
+    "all": "全部",
+    "tag": "标签",
+    "cate": "分类",
+    "published": "发表于",
+    "edited": "修改过",
+    "daysAgo": "{days}天前",
+    "minsAgo": "{minuts}分钟前",
+    "hoursAgo": "{hours}小时前",
+    "at": "{days}/{months}/{years}",
+    "loadMore": "加载更多",
+    "noMore": "没有更多内容了>_<!!"
+  }
+}

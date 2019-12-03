@@ -81,8 +81,19 @@ func (h *ZzblogHttp) registerGetBlog() {
 			return
 		}
 		b, e := blog.Detail()
+		res := map[string]interface{}{
+			"url_id":     blog.URLID,
+			"title":      blog.Title,
+			"tags":       blog.Tags,
+			"category":   blog.Category,
+			"lang":       blog.Lang,
+			"created_at": blog.CreatedAt,
+			"updated_at": blog.UpdatedAt,
+			"image":      blog.Image,
+		}
 		if e == nil {
-			w.Json(b)
+			res["content"] = string(b.Content)
+			w.Json(res)
 			return
 		}
 		w.WithStatusCode(404)

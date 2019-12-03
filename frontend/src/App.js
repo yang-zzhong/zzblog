@@ -1,6 +1,18 @@
 import React from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
+import ColorLensIcon from '@material-ui/icons/ColorLens';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import {localizer} from './localizer';
+import {theme} from './theme';
+import TranslateIcon from '@material-ui/icons/Translate';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import List from './List';
 import model from './model';
 import Blog from './Blog';
@@ -10,11 +22,11 @@ const styles = (theme => {
   return {
     header: {
       height: '40vh',
-      backgroundColor: 'black',
+      backgroundColor: 'var(--head-bg-color)',
+      backgroundImage: 'var(--head-bg-img)',
       backgroundPosition: 'center center',
       backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
-      borderBottom: '1px solid #f0f0f0',
       width: '100vw'
     },
     loading: {
@@ -26,7 +38,7 @@ const styles = (theme => {
     },
     main: {
       position: 'relative',
-      top: '-40vh',
+      top: '-45vh',
       [theme.breakpoints.up('xs')]: {
         left: '2%',
         width: '96%'
@@ -47,6 +59,7 @@ const styles = (theme => {
     mainwrapper: {
       marginTop: '30vh',
       minHeight: '70vh',
+      paddingBottom: '50px',
       position: 'relative',
       width: '100%'
     },
@@ -58,18 +71,32 @@ const styles = (theme => {
         display: 'block'
       }
     },
+    appbar: {
+      position: 'absolute',
+      backgroundColor: 'transparent',
+      color: "var(--head-fg-color)",
+      boxShadow: 'none'
+    },
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
+    title: {
+      flexGrow: 1,
+    },
     app: {
-      backgroundColor: '#f0f0f0'
+      position: 'relative',
+      backgroundColor: 'var(--bg-color)',
+      olor: 'var(--fg-color)'
     }
   }
 });
 
 const ColorLinearProgress = withStyles({
   colorPrimary: {
-    backgroundColor: '#b2dfdb',
+    backgroundColor: 'var(--loading-bg-color)',
   },
   barColorPrimary: {
-    backgroundColor: '#00695c',
+    backgroundColor: 'var(--loading-fg-color)',
   },
 })(LinearProgress);
 
@@ -79,20 +106,69 @@ class App extends React.Component {
     super(props);
     this.state = {
       pageName: '',
-      loading: false
+      loading: false,
+      langLabel: 'English',
+      theme: [],
+      langs: []
     };
+    window.addEventListener('lang-changed', e => {
+      let lang = e.detail;
+      for (let i = 0; i < this.state.langs.length; ++i) {
+        if (this.state.langs[i].name === lang) {
+          this.setState({langLabel: this.state.langs[i].label});
+          break;
+        }
+      }
+    });
     this.pages = {
       blogs: React.createRef(),
       blog: React.createRef()
     };
     this.header = React.createRef();
+    theme.init().then(data => {
+      this.setState({theme: data});
+      let t = theme.guess();
+      if (t) {
+        theme.use(t);
+      }
+    });
+    localizer.init().then(langs => {
+      this.setState({langs: langs});
+      localizer.use(localizer.guess());
+    });
   }
+
+  handleLang(e) {
+    this.setState({anchorLang: e.currentTarget});
+  }
+
+  langClose(lang) {
+    this.setState({anchorLang: null});
+    if (lang) {
+      localizer.use(lang);
+    }
+  }
+
+  handleMenu(e) {
+    this.setState({anchorEl: e.currentTarget});
+  };
+
+  handleClose(e, key) {
+    theme.use(key);
+    this.setState({anchorEl: null});
+  };
 
   componentDidMount() {
     window.boo.location(ctx => {
       window.boo.route(ctx.pathname, this.routeRules(), (pageName, tail) => {
+        let ps = [new Promise(r => {
+          setTimeout(() => {
+            r();
+          }, 700);
+        })];
         this.setState({loading: true});
-        this.setPage(pageName).then(() => {
+        ps.push(this.setPage(pageName));
+        Promise.all(ps).then(() => {
           this.setState({loading: false});
         });
       });
@@ -100,9 +176,6 @@ class App extends React.Component {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    model.userInfo().then(info => {
-      this.header.current.style.backgroundImage = 'url('+info.bg+')';
-    });
   }
 
   routeRules() {
@@ -152,6 +225,74 @@ class App extends React.Component {
     return (
       <div className={classes.app}>
         {this.state.loading && (<ColorLinearProgress className={classes.loading} />)}
+        <AppBar position="static" className={classes.appbar}>
+          <Toolbar>
+            <Typography variant="h6" className={classes.title}></Typography>
+            <div>
+              <Button
+                aria-label="select a theme to apply"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={this.handleLang.bind(this)}
+                color="inherit"
+              >
+                <TranslateIcon />
+                <span style={{display: 'inline-block', margin: '0px 5px'}}>{this.state.langLabel}</span>
+                <ExpandMoreIcon />
+              </Button>
+              <Menu
+                id="menu-appbar"
+                anchorEl={this.state.anchorLang}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                open={Boolean(this.state.anchorLang)}
+                onClose={() => this.langClose()}
+              >
+                {this.state.langs.map(l => {
+                  return <MenuItem key={l.name} onClick={() => this.langClose(l.name)}>{l.label}</MenuItem>
+                })}
+              </Menu>
+            </div>
+            <div>
+              <IconButton
+                aria-label="select a theme to apply"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={this.handleMenu.bind(this)}
+                color="inherit"
+              >
+                <ColorLensIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={this.state.anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(this.state.anchorEl)}
+                onClose={this.handleClose.bind(this)}
+              >
+
+                {this.state.theme.map(t => {
+                  return <MenuItem key={t.name} onClick={(e) => this.handleClose(e, t.name)}>{t.name}</MenuItem>
+                })}
+              </Menu>
+            </div>
+          </Toolbar>
+        </AppBar>
         <header ref={this.header} className={classes.header}></header>
         <div className={classes.main}>
           <main className={classes.mainwrapper} ref="wrapper">

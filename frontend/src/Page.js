@@ -22,6 +22,7 @@ export default class Page extends React.Component {
       }
       this.scrollTop = helper.window_scroll_top();
     });
+    window.addEventListener('lang-changed', e => this.setState({}));
   }
 
   enter() {

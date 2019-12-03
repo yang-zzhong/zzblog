@@ -9,6 +9,10 @@ export default function BooLink(props) {
   }
   return (
     <Link 
+      style={{
+        color: 'var(--blog-a-color)',
+        textDecoration: 'none',
+      }}
       href={props.href} 
       onClick={onClick} 
       className={props.className}>{props.children}</Link>

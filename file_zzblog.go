@@ -3,6 +3,7 @@ package zzblog
 import (
 	"encoding/json"
 	"errors"
+	"gopkg.in/djherbis/times.v1"
 	"io"
 	"io/ioutil"
 	"log"
@@ -176,13 +177,13 @@ func (zz *FileZzblog) addBlog(file string) error {
 		return e
 	}
 	blog.UpdatedAt = info.ModTime()
-	// u := info.Sys()
-	// if u != nil {
-	// 	stat := u.(*syscall.Stat_t)
-	// 	log.Printf("%v\n", stat.Ctim)
-	// 	ts := stat.Ctim
-	// 	blog.CreatedAt = time.Unix(int64(ts.Sec), int64(ts.Nsec))
-	// }
+	t, err := times.Stat(file)
+	if err != nil {
+		return err
+	}
+	if t.HasBirthTime() {
+		blog.CreatedAt = t.BirthTime()
+	}
 	return nil
 }
 

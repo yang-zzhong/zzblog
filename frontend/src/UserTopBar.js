@@ -8,16 +8,22 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 
 const styles = (theme => ({
 	root: {
-		backgroundColor: 'white',
-		borderBottomWidth: '1px',
-		borderBottomStyle: 'solid',
-		borderBottomColor: '#f0f0f0',
-    boxShadow: '0px 0px 5px rgba(0, 0, 0, .3)',
-    display: 'block',
-		color: theme.palette.secondary
+		backgroundColor: 'var(--card-bg-color)',
+		color: 'var(--card-fg-color)',
+    boxShadow: '1px 1px 20px var(--shadow-color)',
+    display: 'block'
 	},
+  a: {
+    color: 'var(--blog-a-color)',
+    textDecoration: 'none',
+    '&:visited': {
+      color: 'var(--blog-a-color)',
+      textDecoration: 'none',
+    }
+  },
   label: {
-    marginRight: '5px'
+    marginRight: '5px',
+    color: 'var(--card-fg2-color)'
   },
 	user: {
     padding: '40px',
@@ -34,7 +40,7 @@ const styles = (theme => ({
 		width: '100%',
 		zIndex: 100,
 		background: 'white',
-		boxShadow: '0px 0px 5px rgba(0, 0, 0, .3)'
+		boxShadow: '0px 0px 5px var(--shadow-color)'
 	},
 	img: {
 		width: '80px',
@@ -100,8 +106,11 @@ class UserTopBar extends React.Component {
                   {this.state.info.bio}
                 </Typography>
                 {this.state.info.contacts.map((contacts) => (
-                  <Typography key={contacts.value} variant="body2" color="textSecondary">
-                    <label className={classes.label}>{contacts.label}: </label>{contacts.href ? (<a href={contacts.href}>{contacts.value}</a>) : contacts.value}
+                  <Typography key={contacts.value} variant="body2">
+                    <label className={classes.label}>{contacts.label}: </label>
+                    {contacts.href ? 
+                      <a className={classes.a} href={contacts.href}>{contacts.value}</a> :
+                      <span style={{color: 'var(--card-fg2-color)'}}>{contacts.value}</span>}
                   </Typography>
                 ))}
               </Grid>

@@ -3,57 +3,63 @@ import Page from './Page';
 import model from './model';
 import {animation} from './animation';
 import {BooWrapper, MainCol} from './BooMainWrapper';
+import BooSticky from './BooSticky';
 import BooLink from './BooLink';
 import {withStyles} from '@material-ui/core/styles';
 import Markdown from 'markdown-to-jsx';
 import hljs from 'highlight.js';
+import {strings} from './localizer';
+import {formatter} from './formatter';
 import 'highlight.js/styles/github.css';
 
 
 const style = theme => {
   return {
     root: {
-      backgroundColor: 'white',
-      boxShadow: '0px 0px 2px rgba(0, 0, 0, .3)',
+      backgroundColor: 'var(--card-bg-color)',
+      color: 'var(--card-fg-color)',
+      boxShadow: '1px 1px 20px var(--shadow-color)',
       minHeight: '50vh',
       padding: '20px'
     },
     row: {
+      backgroundColor: 'var(--card-bg-color)',
       marginBottom: '5px',
       marginTop: '5px'
     },
     seper: {
-      border: '1px solid #f0f0f0',
+      border: '1px solid var(--blog-hr-color)',
     },
     label: {
       marginRight: '10px',
     },
     content: {
-      color: '#444',
+      backgroundColor: 'var(--card-bg-color)',
+      color: 'var(--card-fg-color)',
       lineHeight: '1.5',
       '& h1': {
-        color: 'black',
+        color: 'var(--blog-h-color)',
       },
       '& h2': {
-        color: 'black',
+        color: 'var(--blog-h-color)',
       },
       '& h3': {
-        color: 'black',
+        color: 'var(--blog-h-color)',
       },
       '& h4': {
-        color: 'black',
+        color: 'var(--blog-h-color)',
       },
       '& h5': {
-        color: 'black',
+        color: 'var(--blog-h-color)',
       },
       '& h6': {
-        color: 'black',
+        color: 'var(--blog-h-color)',
       },
       '& hr': {
-        border: '1px solid #f0f0f0'
+        border: '1px solid var(--blog-hr-color)'
       },
       '& a': {
-        color: '#1a0dab',
+        color: 'var(--blog-a-color)',
         textDecoration: 'none'
       },
       '& a:hover': {
@@ -69,7 +75,27 @@ const style = theme => {
     },
     tag: {
       marginRight: '10px'
-    }
+    },
+    sticky: {
+      margin: '0px -20px',
+      padding: '20px',
+      width: '100%',
+      zIndex: 100,
+      background: 'var(--card-bg-color)',
+      color: 'var(--card-fg-color)'
+    },
+    stickyRaised: {
+      margin: '0px -20px',
+      padding: '20px',
+      width: 'clac(100% + 20px)',
+      zIndex: 100,
+      background: 'var(--card-bg-color)',
+      color: 'var(--card-fg-color)',
+      boxShadow: '0px 0px 5px rgba(0, 0, 0, .3)',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden'
+    },
   };
 };
 
@@ -77,8 +103,10 @@ class Blog extends Page {
 
   constructor(props) {
     super(props)
+    const {classes} = this.props;
     this.state = {
       blog: {
+        stickyClass: classes.sticky,
         title: "title",
         content: "content",
         category: "category",
@@ -133,25 +161,37 @@ class Blog extends Page {
     return animation.play(animation.top_out([node]));
   }
 
+  onStickyRaised(raised) {
+    const {classes} = this.props;
+		if (raised) {
+      this.setState({stickyClass: classes.stickyRaised});
+		} else {
+      this.setState({stickyClass: classes.sticky});
+		}
+  }
+
   render() {
     const { classes } = this.props;
     return (
       <div ref={this.content} className={classes.root}>
         <BooWrapper>
           <MainCol>
-            <h1>{this.state.blog.title}</h1>
-            <div className={classes.row}><label className={classes.label}>标签: </label>{this.state.blog.tags.map(t => {
+            <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
+              <h1 className={this.state.stickyClass}>{this.state.blog.title}</h1>
+            </BooSticky>
+            <div className={classes.row}><label className={classes.label}>{strings.tag}: </label>{this.state.blog.tags.map(t => {
             return (
               <BooLink href={'/tags/' + t} className={classes.tag} key={t}>#{t}</BooLink>
             );
             })}</div>
             <div className={classes.row}>
-              <label className={classes.label}>分类: </label>
+              <label className={classes.label}>{strings.cate}: </label>
               <BooLink href={'/cates/' + this.state.blog.category}>
                 <span>{this.state.blog.category}</span>
               </BooLink>
             </div>
             <div className={classes.row}>
+              {formatter.format_time(this.state.blog.updated_at)} {strings.edited}
             </div>
             <hr className={classes.seper} />
             <Markdown className={classes.content}>

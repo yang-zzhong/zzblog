@@ -1,0 +1,40 @@
+{
+  "dark": {
+    "--bg-color": "#444",
+    "--fg-color": "#e0e0e0",
+    "--card-bg-color": "black",
+    "--card-fg-color": "#909090",
+    "--card-fg2-color": "#444",
+    "--blog-h-color": "#f0f0f0",
+    "--blog-hr-color": "#444",
+    "--blog-a-color": "#666",
+    "--tab-ind-color": "red",
+    "--shadow-color": "rgba(80, 80, 80, .3)",
+    "--tab-fg-color": "#e0e0e0",
+    "--tab-bg-color": "black",
+    "--loading-fg-color": "red",
+    "--loading-bg-color": "white",
+    "--head-bg-color": "#999",
+    "--head-fg-color": "black",
+    "--head-bg-img": ""
+  },
+  "light": {
+    "--bg-color": "#f0f0f0",
+    "--fg-color": "#444",
+    "--card-bg-color": "white",
+    "--card-fg-color": "#444",
+    "--card-fg2-color": "#999",
+    "--blog-h-color": "black",
+    "--shadow-color": "rgba(0, 0, 0, .3)",
+    "--blog-hr-color": "#f0f0f0",
+    "--blog-a-color": "#1a0dab",
+    "--tab-ind-color": "red",
+    "--tab-fg-color": "black",
+    "--tab-bg-color": "white",
+    "--loading-fg-color": "#b2dfdb",
+    "--loading-bg-color": "#00695c",
+    "--head-bg-color": "#444",
+    "--head-fg-color": "white",
+    "--head-bg-img": ""
+  }
+}

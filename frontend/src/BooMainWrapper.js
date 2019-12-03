@@ -26,7 +26,7 @@ const mainColStyles = makeStyles(theme => ({
     display: 'block',
     width: '100%',
     color: 'inherit',
-    background: 'inherit',
+    background: 'inherit'
   }
 }));
 
@@ -38,8 +38,8 @@ export const MainCol = React.forwardRef((props, ref) => {
 const secondColStyles = makeStyles(theme => ({
   secondCol: {
     display: 'none',
-    backgroundColor: 'inherit',
     color: 'inherit',
+    background: 'inherit',
     [theme.breakpoints.up('md')]: {
       display: 'block',
       paddingLeft: '20px',

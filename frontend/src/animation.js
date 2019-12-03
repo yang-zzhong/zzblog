@@ -24,10 +24,7 @@ export const animation = {
   scale_in: function(nodes) {
     return {
       keyframes: [
-        {transform: 'scale(0.5)', opacity: 0},
-        {transform: 'scale(0.6)', offset: 0.1},
-        {transform: 'scale(0.7)', offset: 0.2},
-        {transform: 'scale(0.8)', offset: 0.4},
+        {transform: 'scale(1.2)', opacity: 0},
         {transform: 'scale(1)', opacity: 1}
       ],
       time: 300,
@@ -77,8 +74,8 @@ export const animation = {
   bottom_in: function(nodes) {
     return {
       keyframes: [
-        {transform: 'translateY(20px)', opacity: 0},
-        {transform: 'translateY(0px)', opacity: 1}
+        {transform: 'translateY(20px) scale(0.8)', opacity: 0},
+        {transform: 'translateY(0px) scale(1)', opacity: 1}
       ],
       time: 300,
       nodes: nodes

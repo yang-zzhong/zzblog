@@ -3,6 +3,7 @@ import Page from './Page';
 import {animation} from './animation';
 import {withStyles} from '@material-ui/core/styles';
 import  CircularProgress from '@material-ui/core/CircularProgress';
+import {strings} from './localizer';
 import UserTopBar from './UserTopBar';
 import SweetScroll from 'sweet-scroll';
 import Tabs from '@material-ui/core/Tabs';
@@ -17,16 +18,16 @@ import BooLink from './BooLink';
 const styles = (theme => {
   return {
     mainwrapper: {
-      marginTop: '20px'
+      marginTop: '30px'
     },
     nomorewrapper: {
       padding: '10px',
       textAlign: 'center'
     },
     tagrapper: {
-      backgroundColor: 'white',
-      boxShadow: '0px 0px 2px rgba(0, 0, 0, .3)',
-      borderRadius: '3px',
+      backgroundColor: 'var(--card-bg-color)',
+      boxShadow: '1px 1px 3px var(--shadow-color)',
+      borderRadius: '0px',
       padding: '10px',
       display: 'flex',
       justifyContent: 'flex-start',
@@ -38,10 +39,7 @@ const styles = (theme => {
       display: 'block',
       whiteSpace: 'nowrap'
     },
-    selectedtag: {
-      padding: '5px',
-      display: 'block',
-      whiteSpace: 'nowrap',
+    selected: {
       color: 'red'
     }
   };
@@ -52,7 +50,6 @@ class List extends Page {
   constructor(props) {
     super(props);
     model.cates().then(cates => {
-      cates.unshift('全部');
       this.setState({cates: cates});
       this.updateSelected();
     });
@@ -64,11 +61,12 @@ class List extends Page {
       loading: false,
       blogs: [],
       tags: [],
-      cates: ['全部'],
+      cates: [],
       noMore: false
     };
     this.anis = {
       user: React.createRef(),
+      grid: React.createRef()
     };
   }
 
@@ -77,24 +75,28 @@ class List extends Page {
     if (!params) {
       return super.enter();
     }
-    this.cate = params.cate ? params.cate : '全部';
+    this.cate = params.cate ? params.cate : 'all';
     this.tag = decodeURIComponent(params.tag);
     this.page = params.page;
     this.updateSelected();
     this.setState({loading: true, blogs: []});
     return model.queryBlogs(params).then(blogs => {
       this.setState({
+        blogs: blogs || [],
         loading: false,
-        noMore: blogs.length < 10,
-        blogs: blogs || []
+        noMore: blogs.length < 10
       });
       if (old === 'blogs') {
-        const scroll = new SweetScroll();
-        scroll.toTop();
-        const t = this.blogsInAni();
-        if (t) {
-          animation.play(t);
-        }
+        this.anis.grid.current.style.visibility = 'hidden';
+        setTimeout(() => {
+          this.anis.grid.current.style.visibility = 'visible';
+          const scroll = new SweetScroll();
+          scroll.toTop();
+          const t = this.blogsInAni();
+          if (t) {
+            animation.play(t);
+          }
+        }, 0);
       }
       return super.enter();
     });
@@ -122,7 +124,7 @@ class List extends Page {
       return false;
     }
     const topins = animation.bottom_in(bs);
-    topins.delay = 100;
+    topins.delay = 30;
     return topins;
   }
 
@@ -130,7 +132,7 @@ class List extends Page {
     const bs = this.aniBlogs();
     if (bs.length > 0) {
       const topins = animation.top_out(bs);
-      topins.delay = 100;
+      topins.delay = 30;
       return topins;
     }
     return false;
@@ -163,16 +165,17 @@ class List extends Page {
   updateSelected() {
     for (let i = 0; i < this.state.cates.length; ++i) {
       if (this.state.cates[i] === this.cate) {
-        this.setState({value: i});
-        break;
+        this.setState({value: i + 1});
+        return;
       }
     }
+    this.setState({value: 0});
   }
 
   handleChange(e, newValue) {
-    let url = "";
-    if (newValue !== 0 && newValue < this.state.cates.length) {
-      url = "/cates/" + this.state.cates[newValue];
+    let url = "/";
+    if (newValue > 0 && newValue <= this.state.cates.length) {
+      url = "/cates/" + this.state.cates[newValue - 1];
     }
     window.boo.location.go(url);
   }
@@ -184,14 +187,19 @@ class List extends Page {
         <UserTopBar ref={this.anis.user}>
           <Tabs
             value={this.state.value}
-            indicatorColor="primary"
-            textColor="primary"
             aria-label="disabled tabs example"
             onChange={this.handleChange.bind(this)}
             variant="scrollable"
-            style={{maxWidth: '100%'}}
+            style={{
+              maxWidth: '100%',
+              background: 'var(--tab-bg-color)',
+              color: 'var(--tab-fg-color)',
+              indicator: {
+                backgroundColor: 'var(--tab-ind-color)',
+                color: 'var(--tab-ind-color)'
+              }}}
             scrollButtons="auto" >
-
+            <Tab key='all' label={strings.all} />
             {this.state.cates.map(cate => {
               return <Tab key={cate} label={cate} />;
             })}
@@ -202,7 +210,7 @@ class List extends Page {
         <div className={classes.mainwrapper}>
           <BooWrapper>
             <MainCol>
-              <Grid container spacing={2}>
+              <Grid ref={this.anis.grid} container spacing={2}>
                 {this.state.blogs.map(b => {
                   return (
                     <Grid key={b.url_id + Math.random()} xs={12} item>
@@ -221,7 +229,9 @@ class List extends Page {
               <div className={classes.tagrapper}>
                 {this.state.tags.map(b => {
                   return (
-                    <BooLink key={b} className={b === this.tag ? classes.selectedtag : classes.tag} href={"/tags/" + b}>{'#' + b}</BooLink>
+                    <BooLink key={b} className={classes.tag} href={"/tags/" + b}>
+                      <span className={b === this.tag ? classes.selected : ''}>{'#' + b}</span>
+                    </BooLink>
                   );
                 })}
               </div>
@@ -273,9 +283,9 @@ class List extends Page {
       return <ColorCircularProgress />;
     }
     if (this.state.noMore) {
-      return <span>没有跟多内容了</span>;
+      return <span>{strings.noMore}</span>;
     }
-    return <Button onClick={this.loadMore.bind(this)}>加载更多</Button>;
+    return <Button onClick={this.loadMore.bind(this)}><span>{strings.loadMore}</span></Button>;
   }
 }
 

@@ -4,12 +4,16 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import {formatter} from './formatter';
+import {strings} from './localizer';
 
 const useStyles = makeStyles(theme =>({
   card: {
-    borderRadius: '3px',
+    borderRadius: '0px',
     padding: '5px',
-    boxShadow: '0px 0px 2px rgba(0, 0, 0, .3)',
+    backgroundColor: 'var(--card-bg-color)',
+    color: 'var(--card-fg-color)',
+    boxShadow: '1px 1px 3px var(--shadow-color)',
     '&:hover': {
       cursor: 'pointer'
     }
@@ -33,22 +37,18 @@ export default function BlogItem(props) {
     <Card className={classes.card}>
       <CardContent className={classes.area} onClick={() => window.boo.location.go("/" + props.blog.url_id)}>
         <Typography gutterBottom variant="h5" component="h2">
-          {props.blog.title}
+          <span style={{color: 'var(--blog-h-color)'}}>{props.blog.title}</span>
         </Typography>
-        <Typography variant="body2" color="textSecondary" component="p">
+        <Typography variant="body2" component="p">
           {Boolean(props.blog.image) && (
             <img className={classes.img} alt="img" align="left" hspace="10" vspace="3" src={props.blog.image} />
           )}
-          {props.blog.overview}
+          <span style={{color: 'var(--card-fg-color)'}}>{props.blog.overview}</span>
         </Typography>
       </CardContent>
       <CardActions>
         <Typography gutterBottom variant="overline" component="span">
-          发表于3天前
-        </Typography>
-        ,
-        <Typography gutterBottom variant="overline" component="span">
-          1天前修改过
+          {formatter.format_time(props.blog.created_at)} {strings.edited}
         </Typography>
       </CardActions>
     </Card>
