@@ -2,7 +2,6 @@ package zzblog
 
 import (
 	httprouter "github.com/yang-zzhong/go-httprouter"
-	"log"
 	"net"
 	"net/http"
 )
@@ -28,6 +27,12 @@ func (h *ZzblogHttp) initRouter(docroot string) {
 	if h.router.DocRoot == "" {
 		h.router.Tries = []string{httprouter.Api}
 	}
+}
+
+func (h *ZzblogHttp) registerTheme() {
+	h.router.OnGet("/theme", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
+		w.Json(h.zz.Theme())
+	})
 }
 
 func (h *ZzblogHttp) registerGetBlogs() {
@@ -104,7 +109,6 @@ func (h *ZzblogHttp) registerGetBlog() {
 func (h *ZzblogHttp) registerForImage() {
 	h.router.OnGet("/images/:hash", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
 		id := r.Bag.Get("hash").(string)
-		log.Printf("id: %s\n", id)
 		img := h.zz.GetImage(id)
 		if img == nil {
 			img = h.zz.GetImageByFilename(id)
@@ -142,21 +146,33 @@ func (h *ZzblogHttp) registerForImage() {
 
 func (h *ZzblogHttp) registerGetCates() {
 	h.router.OnGet("/cates", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
-		w.Json(h.zz.Cates("en"))
+		lang := r.FormValue("lang")
+		if lang == "" {
+			lang = "en"
+		}
+		w.Json(h.zz.Cates(lang))
 	})
 }
 
 func (h *ZzblogHttp) registerGetTags() {
 	h.router.OnGet("/tags", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
-		w.Json(h.zz.Tags("en"))
+		lang := r.FormValue("lang")
+		if lang == "" {
+			lang = "en"
+		}
+		w.Json(h.zz.Tags(lang))
 	})
 }
 
 func (h *ZzblogHttp) registerAuthor() {
 	h.router.OnGet("/author", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
-		author := h.zz.Author()
+		lang := r.FormValue("lang")
+		if lang == "" {
+			lang = "en"
+		}
+		author := h.zz.Author(lang)
 		if author != nil {
-			w.Json(h.zz.Author())
+			w.Json(author)
 			return
 		}
 		w.WithStatusCode(404)
@@ -175,6 +191,7 @@ func (h *ZzblogHttp) Start(addr string) error {
 		h.registerGetTags()
 		h.registerForImage()
 		h.registerAuthor()
+		h.registerTheme()
 	})
 	l, err := net.Listen("tcp4", addr)
 	if err != nil {

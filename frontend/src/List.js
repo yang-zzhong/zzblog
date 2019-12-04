@@ -49,13 +49,6 @@ class List extends Page {
 
   constructor(props) {
     super(props);
-    model.cates().then(cates => {
-      this.setState({cates: cates});
-      this.updateSelected();
-    });
-    model.tags().then(tags => {
-      this.setState({tags: tags});
-    });
     this.state = {
       value: 0,
       loading: false,
@@ -68,6 +61,24 @@ class List extends Page {
       user: React.createRef(),
       grid: React.createRef()
     };
+    this.tagAndCate();
+    window.addEventListener('lang-changed',  e => {
+      if (this.show) {
+        model.clearOldBlogQuery();
+        this.tagAndCate();
+        this.enter('blogs');
+      }
+    });
+  }
+
+  tagAndCate() {
+    model.cates().then(cates => {
+      this.setState({cates: cates});
+      this.updateSelected();
+    });
+    model.tags().then(tags => {
+      this.setState({tags: tags});
+    });
   }
 
   enter(old) {

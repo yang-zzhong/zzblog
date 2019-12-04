@@ -140,7 +140,8 @@ type Zzblog interface {
 	GetImageByFilename(filename string) *Image
 	Cates(lang string) []string
 	Tags(lang string) []string
-	Author() *Author
+	Author(lang string) *Author
+	Theme() []map[string]string
 	Filter(func(*Blog) bool) BlogSet
 }
 

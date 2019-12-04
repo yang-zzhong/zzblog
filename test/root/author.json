@@ -2,7 +2,6 @@
   "name": "Iron.Y",
   "bio": "People is not just a body",
   "avatar": "http://localhost:8080/api/images/avatar.jpg",
-  "bg": "http://localhost:8080/api/images/light-bg.jpg?w=1200",
   "contacts": [{
     "label": "email",
     "value": "hackyoung110@gmail.com",

@@ -63,6 +63,7 @@ type FileZzblog struct {
 	root   string
 	meta   map[string]*Blog
 	cates  []StringWithLang
+	langs  []string
 	tags   []StringWithLang
 	images map[string]*Image
 }
@@ -193,12 +194,21 @@ func (zz *FileZzblog) Has(id, lang string) bool {
 }
 
 func (zz *FileZzblog) Get(id string, lang string) *Blog {
-	if blog, ok := zz.meta[zz.id(id, lang)]; !ok {
-		return nil
-	} else {
-		log.Printf("%s, %s, %v, %v\n", id, lang, zz.meta, blog)
+	blog, ok := zz.meta[zz.id(id, lang)]
+	if ok {
 		return blog
 	}
+	blog, ok = zz.meta[zz.id(id, "en")]
+	if ok {
+		return blog
+	}
+	for _, lang := range zz.langs {
+		blog, ok := zz.meta[zz.id(id, lang)]
+		if ok {
+			return blog
+		}
+	}
+	return nil
 }
 
 func (zz *FileZzblog) id(id, lang string) string {
@@ -230,6 +240,7 @@ func (zz *FileZzblog) Add(blog *Blog) error {
 	zz.meta[zz.id(blog.URLID, blog.Lang)] = blog
 	zz.updateTag(blog.Lang, blog.Tags)
 	zz.updateCate(blog.Lang, blog.Category)
+	zz.updateLangs(blog.Lang)
 	return nil
 }
 
@@ -265,6 +276,15 @@ func (zz *FileZzblog) updateCate(lang string, cate string) {
 		c.Val = cate
 		zz.cates = append(zz.cates, c)
 	}
+}
+
+func (zz *FileZzblog) updateLangs(lang string) {
+	for _, l := range zz.langs {
+		if l == lang {
+			return
+		}
+	}
+	zz.langs = append(zz.langs, lang)
 }
 
 func (zz *FileZzblog) updateTag(lang string, tags []string) {
@@ -305,12 +325,19 @@ func (zz *FileZzblog) Tags(lang string) []string {
 	return tags
 }
 
-func (zz *FileZzblog) Author() *Author {
+func (zz *FileZzblog) Author(lang string) *Author {
 	var author Author
-	file, err := os.Open(path.Join(zz.root, "author.json"))
+	file, err := os.Open(path.Join(zz.root, "author-"+lang+".json"))
 	if err != nil {
-		log.Printf("%v\n", err)
-		return nil
+		if !os.IsNotExist(err) {
+			log.Print("%v\n", err)
+			return nil
+		}
+		file, err = os.Open(path.Join(zz.root, "author.json"))
+		if err != nil {
+			log.Print("%v\n", err)
+			return nil
+		}
 	}
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&author); err != nil {
@@ -319,4 +346,18 @@ func (zz *FileZzblog) Author() *Author {
 	}
 
 	return &author
+}
+
+func (zz *FileZzblog) Theme() []map[string]string {
+	ret := []map[string]string{}
+	file, err := os.Open(path.Join(zz.root, "theme.json"))
+	if err != nil {
+		return nil
+	}
+	decoder := json.NewDecoder(file)
+	if err = decoder.Decode(&ret); err != nil {
+		log.Printf("%v\n", err)
+	}
+
+	return ret
 }

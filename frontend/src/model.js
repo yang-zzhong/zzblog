@@ -1,7 +1,17 @@
+
 import 'boo-route';
+import {localizer} from './localizer';
 
 const model = {
   server: 'http://localhost:8080'
+};
+
+model.clearOldBlogQuery = function() {
+  model.blogs_params = null;
+}
+
+model.themes = function() {
+  return model.fetch(model.url('/api/theme'));
 };
 
 model.url = function(path, params) {
@@ -71,12 +81,14 @@ model.queryBlogParams = function() {
 }
 
 model.userInfo = function() {
-  if (model._userInfo) {
-    return new Promise(r => r(model._userInfo));
+  const l = localizer.lang();
+  if (model._userInfo && model._userInfo[l]) {
+    return new Promise(r => r(model._userInfo[l]));
   }
   return new Promise((r, reject) => {
-    model.fetch(model.url('/api/author')).then(info => {
-      model._userInfo = info;
+    model.fetch(model.url('/api/author', {lang: l})).then(info => {
+      model._userInfo = model._userInfo || {};
+      model._userInfo[l] = info;
       r(info);
     }, (status, msg) => {
       reject(status, msg);
@@ -87,6 +99,7 @@ model.userInfo = function() {
 model.nextBlogs = function() {
   let params = model.blogs_params;
   params.page += 1;
+  params.lang = localizer.lang();
   return model.queryBlogs(params);
 };
 
@@ -105,6 +118,8 @@ model.fetch = function(url, opt) {
 };
 
 model.queryBlogs = function(params) {
+  params = params || {};
+  params['lang'] = localizer.lang();
   let url = model.url('/api/blogs', params);
   return model.fetch(url);
 };
@@ -112,15 +127,15 @@ model.queryBlogs = function(params) {
 model.blog = function() {
   const ctx = window.boo.location.context;
   const path = '/api/blogs/' + ctx.path_params.url_id;
-  return model.fetch(model.url(path));
+  return model.fetch(model.url(path, {lang: localizer.lang()}));
 }
 
 model.cates = function() {
-  return model.fetch(model.url('/api/cates'));
+  return model.fetch(model.url('/api/cates', {lang: localizer.lang()}));
 }
 
 model.tags = function() {
-  return model.fetch(model.url('/api/tags'));
+  return model.fetch(model.url('/api/tags', {lang: localizer.lang()}));
 }
 
 export default model;

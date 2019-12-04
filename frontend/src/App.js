@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 import ColorLensIcon from '@material-ui/icons/ColorLens';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import {localizer} from './localizer';
@@ -14,7 +15,6 @@ import {theme} from './theme';
 import TranslateIcon from '@material-ui/icons/Translate';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import List from './List';
-import model from './model';
 import Blog from './Blog';
 import 'boo-route';
 
@@ -203,19 +203,19 @@ class App extends React.Component {
       return new Promise(r => r());
     };
     const leave = () => {
-      if (this.pageName) {
-        const old = this.pages[this.pageName].current;
+      if (this.state.pageName) {
+        const old = this.pages[this.state.pageName].current;
         return old.exitAnimation().then(old.leave());
       }
       return new Promise(r => r());
     }
-    return this.pages[pageName].current.enter(this.pageName).then(() => {
-      if (this.pageName === pageName) {
+    return this.pages[pageName].current.enter(this.state.pageName).then(() => {
+      if (this.state.pageName === pageName) {
         return new Promise(r => r());
       }
       return leave().then(goto()).then(this.pages[pageName].current.scrollTo()).then(() => {
-        this.pageName = pageName;
-        return this.pages[this.pageName].current.entryAnimation();
+        this.setState({pageName: pageName});
+        return this.pages[this.state.pageName].current.entryAnimation();
       });
     });
   }
@@ -227,6 +227,11 @@ class App extends React.Component {
         {this.state.loading && (<ColorLinearProgress className={classes.loading} />)}
         <AppBar position="static" className={classes.appbar}>
           <Toolbar>
+            {this.state.pageName === "blog" && (
+              <IconButton onClick={() => window.history.go(-1)} style={{color: "var(--head-fg-color)"}}>
+                <ArrowBackIcon />
+              </IconButton>
+            )}
             <Typography variant="h6" className={classes.title}></Typography>
             <div>
               <Button

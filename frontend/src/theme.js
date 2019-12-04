@@ -1,21 +1,20 @@
+import model from './model';
 
 export const theme = {
   list: [],
   init: function() {
-    return fetch('/theme.json').then(res => {
-      if (res.status === 200) {
-        return res.json().then(body => {
-          theme.list = [];
-          for (let i in body) {
-            let item = {
-              name: i,
-              content: body[i]
-            };
-            theme.list.push(item);
-          }
-          return new Promise(r => r(theme.list));
-        });
+    return model.themes().then(body => {
+      theme.list = [];
+      for (let i in body) {
+        let item = {
+          name: body[i].name || i,
+          content: body[i]
+        };
+        theme.list.push(item);
       }
+      return new Promise(r => r(theme.list));
+    }, (status, msg) => {
+      console.error(status, msg);
       return new Promise(r => r([]));
     });
   },

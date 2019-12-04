@@ -75,6 +75,11 @@ class UserTopBar extends React.Component {
     model.userInfo().then(info => {
       this.setState({info: info});
     });
+    window.addEventListener('lang-changed', e => {
+      model.userInfo().then(info => {
+        this.setState({info: info});
+      });
+    });
   }
 
   onStickyRaised(raised) {

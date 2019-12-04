@@ -1,5 +1,6 @@
-{
-  "dark": {
+[
+  {
+    "name": "dark",
     "--bg-color": "#444",
     "--fg-color": "#e0e0e0",
     "--card-bg-color": "black",
@@ -18,7 +19,8 @@
     "--head-fg-color": "black",
     "--head-bg-img": ""
   },
-  "light": {
+  {
+    "name": "light",
     "--bg-color": "#f0f0f0",
     "--fg-color": "#444",
     "--card-bg-color": "white",
@@ -37,4 +39,4 @@
     "--head-fg-color": "white",
     "--head-bg-img": ""
   }
-}
+]

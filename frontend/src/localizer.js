@@ -44,4 +44,7 @@ export const localizer = {
     }
     return navigator.browserLanguage;
   },
+  lang: function() {
+    return strings.getLanguage() || 'en';
+  }
 };

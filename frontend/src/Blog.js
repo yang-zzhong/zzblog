@@ -113,6 +113,12 @@ class Blog extends Page {
         tags: []
       }
     };
+    window.addEventListener('lang-changed', e => {
+      if (this.show) {
+        this.urlid = null;
+        this.enter();
+      }
+    });
     this.content = React.createRef();
   }
 
