@@ -6,6 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import {formatter} from './formatter';
 import {strings} from './localizer';
+import model from './model';
 
 const useStyles = makeStyles(theme =>({
   card: {
@@ -41,7 +42,7 @@ export default function BlogItem(props) {
         </Typography>
         <Typography variant="body2" component="p">
           {Boolean(props.blog.image) && (
-            <img className={classes.img} alt="img" align="left" hspace="10" vspace="3" src={props.blog.image} />
+            <img className={classes.img} alt="img" align="left" hspace="10" vspace="3" src={model.imageUrl(props.blog.image, 300)} />
           )}
           <span style={{color: 'var(--card-fg-color)'}}>{props.blog.overview}</span>
         </Typography>

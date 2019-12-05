@@ -16,8 +16,8 @@
     "--loading-fg-color": "red",
     "--loading-bg-color": "white",
     "--head-bg-color": "#999",
-    "--head-fg-color": "black",
-    "--head-bg-img": ""
+    "--head-fg-color": "white",
+    "--head-bg-img": "bg.png"
   },
   {
     "name": "light",

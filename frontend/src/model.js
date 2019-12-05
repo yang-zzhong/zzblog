@@ -19,7 +19,9 @@ model.url = function(path, params) {
   let query = "";
   let arr = [];
   for (let i in params) {
-    arr.push(i + "=" + params[i]);
+    if (i && params[i]) {
+      arr.push(i + "=" + params[i]);
+    }
   }
   for (let i = 0; i < arr.length; ++i) {
     query += arr[i];
@@ -128,6 +130,17 @@ model.blog = function() {
   const ctx = window.boo.location.context;
   const path = '/api/blogs/' + ctx.path_params.url_id;
   return model.fetch(model.url(path, {lang: localizer.lang()}));
+}
+
+model.imageUrl = function(img, w, h) {
+  if (!img || img.search('http') === 0) {
+    return img;
+  }
+  if (img.search('/api') < 0) {
+    img = "/api/images/" + img;
+  }
+
+  return model.url(img, {w: w, h: h});
 }
 
 model.cates = function() {

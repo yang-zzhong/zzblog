@@ -64,7 +64,7 @@ class UserTopBar extends React.Component {
       info: {
         name: 'USER NAME',
         bio: 'has no bio info',
-        avatar: 'https://p1.ssl.qhmsg.com/dm/200_200_80/t012880d8265009ca96.jpg',
+        avatar: '',
         contacts: []
       }
     };
@@ -98,7 +98,7 @@ class UserTopBar extends React.Component {
         <Grid className={classes.user} container spacing={2}>
           <Grid item>
             <ButtonBase className={classes.image}>
-              <img className={classes.img} alt="complex" src={this.state.info.avatar} />
+              <img className={classes.img} alt="complex" src={model.imageUrl(this.state.info.avatar, 80)} />
             </ButtonBase>
           </Grid>
           <Grid item xs={12} sm container>

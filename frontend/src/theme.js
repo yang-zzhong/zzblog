@@ -1,4 +1,5 @@
 import model from './model';
+import { helper } from './helper';
 
 export const theme = {
   list: [],
@@ -32,6 +33,11 @@ export const theme = {
     if (content) {
       let root = document.documentElement;
       for (let i in content) {
+        if (i === '--head-bg-img' && content[i]) {
+          let val = model.imageUrl(content[i], helper.screen_width());
+          root.style.setProperty(i, 'url(' + val + ')');
+          continue;
+        }
         root.style.setProperty(i, content[i]);
       }
       localStorage.setItem("theme", name);
