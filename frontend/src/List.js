@@ -54,6 +54,12 @@ class List extends Page {
       loading: false,
       blogs: [],
       tags: [],
+      user: {
+        name: 'USER NAME',
+        avatar: '',
+        bio: 'has no bio info',
+        contacts: []
+      },
       cates: [],
       noMore: false
     };
@@ -61,14 +67,6 @@ class List extends Page {
       user: React.createRef(),
       grid: React.createRef()
     };
-    this.tagAndCate();
-    window.addEventListener('lang-changed',  e => {
-      if (this.show) {
-        model.clearOldBlogQuery();
-        this.tagAndCate();
-        this.enter('blogs');
-      }
-    });
   }
 
   tagAndCate() {
@@ -86,7 +84,27 @@ class List extends Page {
     if (!params) {
       return super.enter();
     }
-    this.cate = params.cate ? params.cate : 'all';
+    if (!this.inited) {
+      this.inited = true;
+      window.addEventListener('lang-changed',  e => {
+        model.clearOldBlogQuery();
+        this.tagAndCate();
+        model.userInfo().then(info => {
+          this.setState({user: info});
+        });
+        if (this.show) {
+          window.boo.location.replace('/');
+        }
+      });
+    }
+    if (!this.tagAndCateReady) {
+      this.tagAndCate();
+      model.userInfo().then(info => {
+        this.setState({user: info});
+      });
+      this.tagAndCateReady = true;
+    }
+    this.cate = decodeURIComponent(params.cate ? params.cate : 'all');
     this.tag = decodeURIComponent(params.tag);
     this.page = params.page;
     this.updateSelected();
@@ -195,7 +213,7 @@ class List extends Page {
     const { classes } = this.props;
     return (
       <div ref={this.pc}>
-        <UserTopBar ref={this.anis.user}>
+        <UserTopBar user={this.state.user} ref={this.anis.user}>
           <Tabs
             value={this.state.value}
             aria-label="disabled tabs example"

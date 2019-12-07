@@ -3,6 +3,7 @@ import Page from './Page';
 import model from './model';
 import {animation} from './animation';
 import {BooWrapper, MainCol} from './BooMainWrapper';
+import Typography from '@material-ui/core/Typography';
 import BooSticky from './BooSticky';
 import BooLink from './BooLink';
 import {withStyles} from '@material-ui/core/styles';
@@ -62,10 +63,29 @@ const style = theme => {
         color: 'var(--blog-a-color)',
         textDecoration: 'none'
       },
+      '& blockquote': {
+        borderLeft: '4px solid var(--blog-hr-color)',
+        paddingLeft: '10px',
+        overflow: 'auto',
+        maxWidth: '100%',
+        margin: '10px'
+      },
+      '& table': {
+        width: '100%'
+      },
+      '& td': {
+        borderBottom: '1px solid var(--blog-hr-color)',
+      },
       '& a:hover': {
         textDecoration: 'underline'
       },
       '& code': {
+        backgroundColor: 'var(--blog-code-bg)',
+        color: 'var(--blog-code-fg)',
+        borderRadius: '3px',
+        padding: '0px 5px'
+      },
+      '& pre code': {
         overflow: 'auto',
         maxWidth: '100%'
       },
@@ -111,14 +131,12 @@ class Blog extends Page {
         content: "content",
         category: "category",
         tags: []
+      },
+      user: {
+        name: 'USER NAME',
+        avatar: '',
       }
     };
-    window.addEventListener('lang-changed', e => {
-      if (this.show) {
-        this.urlid = null;
-        this.enter();
-      }
-    });
     this.content = React.createRef();
   }
 
@@ -126,6 +144,28 @@ class Blog extends Page {
     const ctx = window.boo.location.context;
     if (this.urlid === ctx.path_params.url_id) {
       return super.enter();
+    }
+    if (!this.inited) {
+      this.inited = true;
+      window.addEventListener('lang-changed', e => {
+        const ctx = window.boo.location.context;;
+        if (this.show && ctx.path_params.url_id) {
+          this.urlid = null;
+          this.enter();
+          model.userInfo().then(info => {
+            this.setState({user: {
+              name: info.name,
+              avatar: info.avatar
+            }});
+          });
+        }
+      });
+      model.userInfo().then(info => {
+        this.setState({user: {
+          name: info.name,
+          avatar: info.avatar
+        }});
+      });
     }
     return model.blog().then(blog => {
       this.setState({blog: blog});
@@ -185,20 +225,26 @@ class Blog extends Page {
             <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
               <h1 className={this.state.stickyClass}>{this.state.blog.title}</h1>
             </BooSticky>
-            <div className={classes.row}><label className={classes.label}>{strings.tag}: </label>{this.state.blog.tags.map(t => {
-            return (
-              <BooLink href={'/tags/' + t} className={classes.tag} key={t}>#{t}</BooLink>
-            );
-            })}</div>
-            <div className={classes.row}>
+              <Typography component="body" variant="body2" className={classes.row}>
+                <label className={classes.label}>{strings.tag}: </label>
+                {this.state.blog.tags.map(t => {
+                  return (
+                    <BooLink href={'/tags/' + t} className={classes.tag} key={t}>#{t}</BooLink>
+                  );
+                })}
+              </Typography>
+            <Typography component="body" variant="body2"  className={classes.row}>
               <label className={classes.label}>{strings.cate}: </label>
               <BooLink href={'/cates/' + this.state.blog.category}>
                 <span>{this.state.blog.category}</span>
               </BooLink>
-            </div>
-            <div className={classes.row}>
-              {formatter.format_time(this.state.blog.updated_at)} {strings.edited}
-            </div>
+            </Typography>
+            <Typography component="body" variant="body2" className={classes.row}>
+              {strings.formatString(strings.edited, {
+                time: formatter.format_time(this.state.blog.updated_at),
+                author: <BooLink href="/">{this.state.user.name}</BooLink>
+              })}
+            </Typography>
             <hr className={classes.seper} />
             <Markdown className={classes.content}>
               {this.state.blog.content}

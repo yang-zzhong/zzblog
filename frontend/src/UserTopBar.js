@@ -61,25 +61,8 @@ class UserTopBar extends React.Component {
     this.state = {
       stickyClass: classes.sticky,
       disableSticky: false,
-      info: {
-        name: 'USER NAME',
-        bio: 'has no bio info',
-        avatar: '',
-        contacts: []
-      }
     };
     this.sticky = React.createRef();
-  }
-
-  componentDidMount() {
-    model.userInfo().then(info => {
-      this.setState({info: info});
-    });
-    window.addEventListener('lang-changed', e => {
-      model.userInfo().then(info => {
-        this.setState({info: info});
-      });
-    });
   }
 
   onStickyRaised(raised) {
@@ -98,19 +81,19 @@ class UserTopBar extends React.Component {
         <Grid className={classes.user} container spacing={2}>
           <Grid item>
             <ButtonBase className={classes.image}>
-              <img className={classes.img} alt="complex" src={model.imageUrl(this.state.info.avatar, 80)} />
+              <img className={classes.img} alt="complex" src={model.imageUrl(this.props.user.avatar, 80)} />
             </ButtonBase>
           </Grid>
           <Grid item xs={12} sm container>
             <Grid item xs container direction="column" spacing={2}>
               <Grid item xs>
                 <Typography gutterBottom variant="subtitle1">
-                  {this.state.info.name}
+                  {this.props.user.name}
                 </Typography>
                 <Typography variant="body2" gutterBottom>
-                  {this.state.info.bio}
+                  {this.props.user.bio}
                 </Typography>
-                {this.state.info.contacts.map((contacts) => (
+                {this.props.user.contacts.map((contacts) => (
                   <Typography key={contacts.value} variant="body2">
                     <label className={classes.label}>{contacts.label}: </label>
                     {contacts.href ? 

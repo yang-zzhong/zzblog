@@ -5,12 +5,12 @@
     "tag": "TAG",
     "cate": "CATEGORY",
     "published": "published",
-    "edited": "last modified",
+    "edited": "last modified at {time} by {author}",
     "loadMore": "LOAD MORE",
     "daysAgo": "{days} days ago",
     "minsAgo": "{minuts} mins ago",
     "hoursAgo": "{hours} hours ago",
-    "at": "{days}/{months}/{years}",
+    "at": "at {days}/{months}/{years}",
     "noMore": "No more data >_<!!"
   },
   "zh-CN": {
@@ -19,7 +19,7 @@
     "tag": "标签",
     "cate": "分类",
     "published": "发表于",
-    "edited": "修改过",
+    "edited": "{author}在{time}修改过",
     "daysAgo": "{days}天前",
     "minsAgo": "{minuts}分钟前",
     "hoursAgo": "{hours}小时前",

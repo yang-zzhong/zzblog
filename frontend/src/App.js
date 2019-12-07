@@ -107,18 +107,12 @@ class App extends React.Component {
     this.state = {
       pageName: '',
       loading: false,
-      langLabel: 'English',
+      langLabel: '',
       theme: [],
       langs: []
     };
     window.addEventListener('lang-changed', e => {
-      let lang = e.detail;
-      for (let i = 0; i < this.state.langs.length; ++i) {
-        if (this.state.langs[i].name === lang) {
-          this.setState({langLabel: this.state.langs[i].label});
-          break;
-        }
-      }
+      this.setLangLabel(e.detail);
     });
     this.pages = {
       blogs: React.createRef(),
@@ -131,10 +125,6 @@ class App extends React.Component {
       if (t) {
         theme.use(t);
       }
-    });
-    localizer.init().then(langs => {
-      this.setState({langs: langs});
-      localizer.use(localizer.guess());
     });
   }
 
@@ -160,22 +150,42 @@ class App extends React.Component {
 
   componentDidMount() {
     window.boo.location(ctx => {
-      window.boo.route(ctx.pathname, this.routeRules(), (pageName, tail) => {
-        let ps = [new Promise(r => {
-          setTimeout(() => {
-            r();
-          }, 700);
-        })];
-        this.setState({loading: true});
-        ps.push(this.setPage(pageName));
-        Promise.all(ps).then(() => {
-          this.setState({loading: false});
-        });
-      });
+      window.boo.route(ctx.pathname, this.routeRules(), this.route.bind(this));
     });
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
+  }
+
+  setLangLabel(lang) {
+    for (let i = 0; i < this.state.langs.length; ++i) {
+      if (this.state.langs[i].name === lang) {
+        this.setState({langLabel: this.state.langs[i].label});
+        break;
+      }
+    }
+  }
+
+  route(pageName, tail) {
+    localizer.ready().then(langs => {
+      this.setState({langs: langs});
+      if (this.lang === undefined) {
+        this.lang = localizer.guess();
+        localizer.use(this.lang);
+      }
+      return new Promise(r => r());
+    }).then(() => {
+      let ps = [new Promise(r => {
+        setTimeout(() => {
+          r();
+        }, 700);
+      })];
+      this.setState({loading: true});
+      ps.push(this.setPage(pageName));
+      Promise.all(ps).then(() => {
+        this.setState({loading: false});
+      });
+    });
   }
 
   routeRules() {

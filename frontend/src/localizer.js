@@ -8,17 +8,26 @@ function notify(lang) {
 }
 
 export const localizer = {
+  langs: [],
+  __ready: false,
+  ready: function() {
+    if (localizer.__ready) {
+      return new Promise(r => r(localizer.langs));
+    }
+    localizer.__ready = true;
+    return localizer.init();
+  },
   init: function() {
     return fetch('/langs.json').then(res => {
       if (res.status === 200) {
         return res.json().then(langs => {
-          console.log(langs);
           strings.setContent(langs || {});
           let lst = [];
           for(let i in langs) {
             lst.push({name: i, label: langs[i].__label || i});
           }
-          return new Promise(r => r(lst));
+          localizer.langs = lst;
+          return new Promise(r => r(localizer.langs));
         }).catch(() => {
           return new Promise(r => r([]));
         });
@@ -27,6 +36,10 @@ export const localizer = {
     });
   },
   guess: function() {
+    const ctx = window.boo.location.context;
+    if (ctx.query_params.lang) {
+      return ctx.query_params.lang;
+    }
     const l = localStorage.getItem('lang');
     if (l) {
       return l;
