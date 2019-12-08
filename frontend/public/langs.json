@@ -10,7 +10,7 @@
     "daysAgo": "{days} days ago",
     "minsAgo": "{minuts} mins ago",
     "hoursAgo": "{hours} hours ago",
-    "at": "at {days}/{months}/{years}",
+    "at": "{days}/{months}/{years}",
     "noMore": "No more data >_<!!"
   },
   "zh-CN": {

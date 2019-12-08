@@ -1,6 +1,7 @@
 package zzblog
 
 import (
+	"errors"
 	httprouter "github.com/yang-zzhong/go-httprouter"
 	"net"
 	"net/http"
@@ -181,8 +182,21 @@ func (h *ZzblogHttp) registerAuthor() {
 }
 
 func (h *ZzblogHttp) Start(addr string) error {
-	ms := []httprouter.Middleware{
-		&AcrossDomain,
+	ms := []httprouter.Middleware{}
+	if GetConfig().Renderer != "" {
+		sr := NewServerRenderer(
+			GetConfig().Bots,
+			GetConfig().Renderer,
+			GetConfig().RenderCacheDir)
+		if sr == nil {
+			return errors.New("can not create render cache dir")
+		}
+		h.router.BeforeEntryFile = func(w *httprouter.ResponseWriter, req *http.Request, _ string) bool {
+			return sr.Before(w, &httprouter.Request{nil, req})
+		}
+	}
+	if GetConfig().AllowCors {
+		ms = append(ms, &AcrossDomain)
 	}
 	h.router.Group("/api", ms, func(_ *httprouter.Router) {
 		h.registerGetCates()

@@ -76,7 +76,10 @@ export default class BooSticky extends React.Component {
     node.style.width = 'auto';
     if (helper.window_scroll_top() + top > helper.pos_in_doc(node).y) {
       let r = node.getBoundingClientRect();
-      if(r.width > 0) {
+      if (this.props.fullWidthSticky) {
+        node.style.width = '100%';
+        node.style.left = '0px';
+      } else if (r.width > 0) {
         node.style.width = r.width + 'px';
       }
       if (r.height > 0) {
@@ -103,7 +106,10 @@ export default class BooSticky extends React.Component {
     let r = node.getBoundingClientRect();
     let top = helper.screen_height() - bottom - r.height;
     if (helper.window_scroll_top() + top < helper.pos_in_doc(node).y) {
-      if(r.width > 0) {
+      if (this.props.fullWidthSticky) {
+        node.style.width = '100%';
+        node.style.left = '0px';
+      } else if (r.width > 0) {
         node.style.width = r.width + 'px';
       }
       if (r.height > 0) {

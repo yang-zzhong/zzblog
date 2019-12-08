@@ -1,0 +1,16 @@
+port: 8080
+allow_cors: true
+doc_root: /Users/yangzhong/dev/go/src/zzblog/frontend/build
+root: /Users/yangzhong/dev/blog/
+render_cache_dir: /tmp/
+renderer: http://127.0.0.1:3000
+bots:
+   - Googlebot
+   - Baiduspider
+   - Slurp
+   - Yahoo
+   - iaskspider
+   - Sogou
+   - YodaoBot
+   - msnbot
+   - 360Spider

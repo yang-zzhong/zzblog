@@ -17,19 +17,19 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	var docroot, root, port string
+	var config string
 	start := &cobra.Command{
 		Use:   "start",
 		Short: "start http service",
 		Long:  `start http service`,
 		Run: func(cmd *cobra.Command, args []string) {
-			h := zzblog.NewHttp(root, docroot)
-			panic(h.Start(":" + port))
+			zzblog.InitConfig(config)
+			c := zzblog.GetConfig()
+			h := zzblog.NewHttp(c.Root, c.DocRoot)
+			panic(h.Start(":" + c.Port))
 		},
 	}
-	start.Flags().StringVarP(&docroot, "docroot", "d", "", "html root")
-	start.Flags().StringVarP(&root, "root", "r", "/Users/yangzhong/dev/go/src/zzblog/test/root", "blog root")
-	start.Flags().StringVarP(&port, "port", "p", "80", "listen address")
+	start.Flags().StringVarP(&config, "config", "c", "config.yml", "config file")
 	rootCmd.AddCommand(start)
 }
 

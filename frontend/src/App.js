@@ -31,7 +31,7 @@ const styles = (theme => {
     },
     loading: {
       position: 'fixed',
-      zIndex: 100,
+      zIndex: 10000,
       left: '0px',
       top: '0px',
       width: '100vw'
@@ -178,7 +178,7 @@ class App extends React.Component {
       let ps = [new Promise(r => {
         setTimeout(() => {
           r();
-        }, 700);
+        }, 0);
       })];
       this.setState({loading: true});
       ps.push(this.setPage(pageName));

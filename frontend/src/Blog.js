@@ -189,9 +189,8 @@ class Blog extends Page {
     if (!this.inited) {
       this.inited = true;
       window.addEventListener('lang-changed', e => {
-        const ctx = window.boo.location.context;
+        this.urlid = null;
         if (this.show && ctx.path_params.url_id) {
-          this.urlid = null;
           this.enter();
           model.userInfo().then(info => {
             this.setState({user: {
@@ -276,76 +275,78 @@ class Blog extends Page {
   render() {
     const { classes } = this.props;
     return (
-      <div ref={this.content} className={classes.root}>
-        <BooWrapper>
-          <MainCol>
-            <div style={{padding: '10px 0px', margin: '0px -20px'}}>
-              <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
-                <div className={this.state.stickyClass}>
-                  <h1>{this.state.blog.title}</h1>
-                  <div>
-                    <IconButton
-                      aria-label="select a theme to apply"
-                      aria-controls="menu-appbar"
-                      aria-haspopup="true"
-                      onClick={this.handleMenu.bind(this)}
-                      color="inherit"
-                    >
-                      <ExpandMoreIcon />
-                    </IconButton>
-                    <Menu
-                      id="menu-appbar"
-                      anchorEl={this.state.anchorEl}
-                      anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                      }}
-                      keepMounted
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                      }}
-                      open={Boolean(this.state.anchorEl)}
-                      onClose={this.handleClose.bind(this)}
-                    >
-                      <div style={{padding: '10px'}}>
+      <div style={{padding: '0px 0px 100px 0px'}}>
+        <div ref={this.content} className={classes.root}>
+          <BooWrapper>
+            <MainCol>
+              <div style={{padding: '10px 0px', margin: '0px -20px'}}>
+                <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
+                  <div className={this.state.stickyClass}>
+                    <h1>{this.state.blog.title}</h1>
+                    <div>
+                      <IconButton
+                        aria-label="select a theme to apply"
+                        aria-controls="menu-appbar"
+                        aria-haspopup="true"
+                        onClick={this.handleMenu.bind(this)}
+                        color="inherit"
+                      >
+                        <ExpandMoreIcon />
+                      </IconButton>
+                      <Menu
+                        id="menu-appbar"
+                        anchorEl={this.state.anchorEl}
+                        anchorOrigin={{
+                          vertical: 'top',
+                          horizontal: 'right',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'right',
+                        }}
+                        open={Boolean(this.state.anchorEl)}
+                        onClose={this.handleClose.bind(this)}
+                      >
+                        <div style={{padding: '10px'}}>
 
-                        <BooIndex index={this.state.index} onItemClick={this.indexClicked.bind(this)} />
-                      </div>
+                          <BooIndex index={this.state.index} onItemClick={this.indexClicked.bind(this)} />
+                        </div>
 
-                    </Menu>
+                      </Menu>
+                    </div>
                   </div>
-                </div>
-              </BooSticky>
-            </div>
+                </BooSticky>
+              </div>
               <Typography component="div" variant="body2" className={classes.row}>
                 <label className={classes.label}>{strings.tag}: </label>
-                {this.state.blog.tags.map(t => {
+                 {this.state.blog.tags.map(t => {
                   return (
                     <BooLink href={'/tags/' + t} className={classes.tag} key={t}>#{t}</BooLink>
                   );
                 })}
               </Typography>
-            <Typography component="div" variant="body2"  className={classes.row}>
-              <label className={classes.label}>{strings.cate}: </label>
-              <BooLink href={'/cates/' + this.state.blog.category}>
-                <span>{this.state.blog.category}</span>
-              </BooLink>
-            </Typography>
-            <Typography component="div" variant="body2" className={classes.row}>
-              {strings.formatString(strings.edited, {
-                time: formatter.format_time(this.state.blog.updated_at),
-                author: <BooLink href="/">{this.state.user.name}</BooLink>
-              })}
-            </Typography>
-            <hr className={classes.seper} />
-            <div ref={this.pc}>
-              <Markdown className={classes.content}>
-                {this.state.blog.content}
-              </Markdown>
-            </div>
-          </MainCol>
-        </BooWrapper>
+              <Typography component="div" variant="body2"  className={classes.row}>
+                <label className={classes.label}>{strings.cate}: </label>
+                <BooLink href={'/cates/' + this.state.blog.category}>
+                  <span>{this.state.blog.category}</span>
+                </BooLink>
+              </Typography>
+              <Typography component="div" variant="body2" className={classes.row}>
+                {strings.formatString(strings.edited, {
+                  time: formatter.format_time(this.state.blog.updated_at),
+                  author: <BooLink href="/">{this.state.user.name}</BooLink>
+                })}
+              </Typography>
+              <hr className={classes.seper} />
+              <div ref={this.pc}>
+                <Markdown className={classes.content}>
+                  {this.state.blog.content}
+                </Markdown>
+              </div>
+            </MainCol>
+          </BooWrapper>
+        </div>
       </div>
     )
   }
