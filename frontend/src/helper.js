@@ -1,3 +1,4 @@
+import MD5 from 'md5-es';
 
 export const helper = {
   updateKeywords: function(keywords) {
@@ -88,11 +89,8 @@ export const helper = {
 
     let root = {weight: 0, children: []};
     node.querySelectorAll('h1,h2,h3,h4').forEach((node) => {
-      let id = node.getAttribute('id');
-      if (!id) {
-        id = "a" + Math.random().toString(36).substr(2);
-        node.setAttribute("id", id);
-      }
+      const id = "a" + MD5.hash(node.innerHTML);
+      node.setAttribute("id", id);
       let item = {
         url: '#' + id,
         name: node.textContent,

@@ -58,12 +58,9 @@ export default class Page extends React.Component {
       let s = new SweetScroll();
       let node = this.findScrollNode(window.location.hash);
       if (node) {
-        let o = s.getOffset(node);
-        o.top -= this.scrollMarginTop();
-        o.top = Math.max(o.top, 0);
-        s.to(o.top, {duration: 1000});
+        s.toElement(node, {duration: 1000});
       } else if (this._url !== window.location.href) {
-        s.to(0, {duration: 0});
+        s.to(0, {});
         this._url = window.location.href;
       } else {
         s.to(this.scrollTop, {duration: 0});

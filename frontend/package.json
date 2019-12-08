@@ -11,6 +11,7 @@
     "sweet-scroll": "^4.0.0",
     "markdown-to-jsx": "^6.10.3",
     "highlight.js": "^9.16.2",
+    "md5-es": "^1.8.2",
     "react-localization": "^1.0.15",
     "react-scripts": "3.2.0"
   },

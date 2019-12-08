@@ -108,9 +108,9 @@ func (set *MBlogSet) Less(i, j int) bool {
 }
 
 func (set *MBlogSet) Swap(i, j int) {
-	blog := *set.blogs[i]
-	*set.blogs[i] = *set.blogs[j]
-	*set.blogs[j] = blog
+	blog := set.blogs[i]
+	set.blogs[i] = set.blogs[j]
+	set.blogs[j] = blog
 }
 
 func (set *MBlogSet) Get() []*Blog {

@@ -4,14 +4,19 @@ import model from './model';
 import {animation} from './animation';
 import {BooWrapper, MainCol} from './BooMainWrapper';
 import Typography from '@material-ui/core/Typography';
+import Menu from '@material-ui/core/Menu';
+import IconButton from '@material-ui/core/IconButton';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import BooSticky from './BooSticky';
 import BooLink from './BooLink';
 import {withStyles} from '@material-ui/core/styles';
 import Markdown from 'markdown-to-jsx';
 import hljs from 'highlight.js';
 import {strings} from './localizer';
+import {helper} from './helper';
 import {formatter} from './formatter';
-import 'highlight.js/styles/github.css';
+import BooIndex from './BlogIndex';
+import 'highlight.js/styles/monokai.css';
 
 
 const style = theme => {
@@ -79,15 +84,31 @@ const style = theme => {
       '& a:hover': {
         textDecoration: 'underline'
       },
-      '& code': {
-        backgroundColor: 'var(--blog-code-bg)',
-        color: 'var(--blog-code-fg)',
-        borderRadius: '3px',
+      '& div code': {
+        color: 'rgb(189, 102, 8)',
+        padding: '0px 5px'
+      },
+      '& p code': {
+        color: 'rgb(189, 102, 8)',
+        padding: '0px 5px'
+      },
+      '& li code': {
+        color: 'rgb(189, 102, 8)',
+        padding: '0px 5px'
+      },
+      '& ol code': {
+        color: 'rgb(189, 102, 8)',
+        padding: '0px 5px'
+      },
+      '& blockquote code': {
+        color: 'rgb(189, 102, 8)',
         padding: '0px 5px'
       },
       '& pre code': {
         overflow: 'auto',
-        maxWidth: '100%'
+        maxWidth: '100%',
+        borderRadius: '3px',
+        padding: '5px'
       },
       '& img': {
         maxWidth: '100%'
@@ -97,24 +118,39 @@ const style = theme => {
       marginRight: '10px'
     },
     sticky: {
-      margin: '0px -20px',
-      padding: '20px',
-      width: '100%',
-      zIndex: 100,
-      background: 'var(--card-bg-color)',
-      color: 'var(--card-fg-color)'
-    },
-    stickyRaised: {
-      margin: '0px -20px',
-      padding: '20px',
-      width: 'clac(100% + 20px)',
+      padding: '0px 8px',
+      height: '64px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       zIndex: 100,
       background: 'var(--card-bg-color)',
       color: 'var(--card-fg-color)',
+      '& h1': {
+        padding: '0px',
+        margin: '0px',
+        transition: '.2s all ease-in-out'
+      }
+    },
+    stickyRaised: {
+      padding: '0px 8px',
+      zIndex: 100,
+      height: '64px',
+      fontSize: '.8em',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      background: 'var(--card-bg-color)',
+      color: 'var(--card-fg-color)',
       boxShadow: '0px 0px 5px rgba(0, 0, 0, .3)',
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
-      overflow: 'hidden'
+      '& h1': {
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        padding: '0px',
+        margin: '0px',
+        transition: '.2s all ease-in-out'
+      }
     },
   };
 };
@@ -132,12 +168,16 @@ class Blog extends Page {
         category: "category",
         tags: []
       },
+      index: null,
       user: {
         name: 'USER NAME',
         avatar: '',
       }
     };
     this.content = React.createRef();
+    setTimeout(() => {
+      this.setState({stickyClass: classes.sticky});
+    }, 1);
   }
 
   enter() {
@@ -145,10 +185,11 @@ class Blog extends Page {
     if (this.urlid === ctx.path_params.url_id) {
       return super.enter();
     }
+    this.urlid = ctx.path_params.url_id;
     if (!this.inited) {
       this.inited = true;
       window.addEventListener('lang-changed', e => {
-        const ctx = window.boo.location.context;;
+        const ctx = window.boo.location.context;
         if (this.show && ctx.path_params.url_id) {
           this.urlid = null;
           this.enter();
@@ -169,15 +210,19 @@ class Blog extends Page {
     }
     return model.blog().then(blog => {
       this.setState({blog: blog});
-      setTimeout(() => {
-        const node = this.content.current;
-        if (node) {
-          node.querySelectorAll('pre code').forEach(e => {
-            hljs.highlightBlock(e);
-          });
-        }
-      }, 100);
-      return super.enter();
+      return new Promise(r => {
+        setTimeout(() => {
+          const node = this.content.current;
+          if (node) {
+            node.querySelectorAll('pre code').forEach(e => {
+              hljs.highlightBlock(e);
+            });
+            const index = helper.index_of_blog(node);
+            this.setState({index: index});
+          }
+          super.enter().then(r());
+        }, 10);
+      });
     });
   }
 
@@ -216,16 +261,64 @@ class Blog extends Page {
 		}
   }
 
+  handleMenu(e) {
+    this.setState({anchorEl: e.currentTarget});
+  }
+
+  handleClose(e) {
+    this.setState({anchorEl: null});
+  }
+
+  indexClicked(item) {
+    window.boo.location.go(item.url);
+  }
+
   render() {
     const { classes } = this.props;
     return (
       <div ref={this.content} className={classes.root}>
         <BooWrapper>
           <MainCol>
-            <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
-              <h1 className={this.state.stickyClass}>{this.state.blog.title}</h1>
-            </BooSticky>
-              <Typography component="body" variant="body2" className={classes.row}>
+            <div style={{padding: '10px 0px', margin: '0px -20px'}}>
+              <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
+                <div className={this.state.stickyClass}>
+                  <h1>{this.state.blog.title}</h1>
+                  <div>
+                    <IconButton
+                      aria-label="select a theme to apply"
+                      aria-controls="menu-appbar"
+                      aria-haspopup="true"
+                      onClick={this.handleMenu.bind(this)}
+                      color="inherit"
+                    >
+                      <ExpandMoreIcon />
+                    </IconButton>
+                    <Menu
+                      id="menu-appbar"
+                      anchorEl={this.state.anchorEl}
+                      anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                      keepMounted
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                      open={Boolean(this.state.anchorEl)}
+                      onClose={this.handleClose.bind(this)}
+                    >
+                      <div style={{padding: '10px'}}>
+
+                        <BooIndex index={this.state.index} onItemClick={this.indexClicked.bind(this)} />
+                      </div>
+
+                    </Menu>
+                  </div>
+                </div>
+              </BooSticky>
+            </div>
+              <Typography component="div" variant="body2" className={classes.row}>
                 <label className={classes.label}>{strings.tag}: </label>
                 {this.state.blog.tags.map(t => {
                   return (
@@ -233,22 +326,24 @@ class Blog extends Page {
                   );
                 })}
               </Typography>
-            <Typography component="body" variant="body2"  className={classes.row}>
+            <Typography component="div" variant="body2"  className={classes.row}>
               <label className={classes.label}>{strings.cate}: </label>
               <BooLink href={'/cates/' + this.state.blog.category}>
                 <span>{this.state.blog.category}</span>
               </BooLink>
             </Typography>
-            <Typography component="body" variant="body2" className={classes.row}>
+            <Typography component="div" variant="body2" className={classes.row}>
               {strings.formatString(strings.edited, {
                 time: formatter.format_time(this.state.blog.updated_at),
                 author: <BooLink href="/">{this.state.user.name}</BooLink>
               })}
             </Typography>
             <hr className={classes.seper} />
-            <Markdown className={classes.content}>
-              {this.state.blog.content}
-            </Markdown>
+            <div ref={this.pc}>
+              <Markdown className={classes.content}>
+                {this.state.blog.content}
+              </Markdown>
+            </div>
           </MainCol>
         </BooWrapper>
       </div>

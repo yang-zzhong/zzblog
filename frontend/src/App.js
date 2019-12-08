@@ -221,7 +221,7 @@ class App extends React.Component {
     }
     return this.pages[pageName].current.enter(this.state.pageName).then(() => {
       if (this.state.pageName === pageName) {
-        return new Promise(r => r());
+        return this.pages[pageName].current.scrollTo();
       }
       return leave().then(goto()).then(this.pages[pageName].current.scrollTo()).then(() => {
         this.setState({pageName: pageName});

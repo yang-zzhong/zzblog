@@ -1,0 +1,48 @@
+
+.wrapper {
+  border-left: 4px solid var(--card-bg-color);
+}
+.index {
+  list-style: none;
+  padding-left: 20px;
+}
+.wrapper>.index {
+  padding-left: 5px;
+}
+.index li {
+  margin: 4px 0px;
+}
+.index>li>div>.prefix {
+  transform: rotate(-90deg);
+  transition: all .1s ease-in;
+}
+.index>li.opened>div>.prefix {
+  width: 24px;
+  height: 24px;
+  transition: all .2s ease-in-out;
+  transform: rotate(0deg);
+}
+.wrapper li>.index:hover {
+  cursor: pointer;
+}
+.wrapper li>.index {
+  display: none;
+}
+.wrapper li.opened>.index {
+  display: block;
+}
+.wrapper .content-index {
+  position: fixed;
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+}
+.wrapper li>div {
+  display: flex;
+  align-items: center;
+}
+.wrapper .prefix {
+  display: inline-block;
+}
+.wrapper .prefix:hover {
+  cursor: pointer;
+}
