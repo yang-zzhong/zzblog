@@ -3,6 +3,7 @@ import Page from './Page';
 import {animation} from './animation';
 import {withStyles} from '@material-ui/core/styles';
 import  CircularProgress from '@material-ui/core/CircularProgress';
+import BooSticky from './BooSticky';
 import {strings} from './localizer';
 import UserTopBar from './UserTopBar';
 import SweetScroll from 'sweet-scroll';
@@ -255,15 +256,17 @@ class List extends Page {
               </div>
             </MainCol>
             <SecondCol>
-              <div className={classes.tagrapper}>
-                {this.state.tags.map(b => {
-                  return (
-                    <BooLink key={b} className={classes.tag} href={"/tags/" + b}>
-                      <span className={b === this.tag ? classes.selected : ''}>{'#' + b}</span>
-                    </BooLink>
-                  );
-                })}
-              </div>
+              <BooSticky top={64}>
+                <div className={classes.tagrapper}>
+                  {this.state.tags.map(b => {
+                    return (
+                      <BooLink key={b} className={classes.tag} href={"/tags/" + b}>
+                        <span className={b === this.tag ? classes.selected : ''}>{'#' + b}</span>
+                      </BooLink>
+                    );
+                  })}
+                </div>
+              </BooSticky>
             </SecondCol>
           </BooWrapper>
         </div>

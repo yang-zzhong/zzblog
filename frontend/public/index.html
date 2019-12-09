@@ -26,7 +26,16 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Iron.Young Home Page</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        }
+      };
+    </script>
     <script src="/web-animations.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js"></script>
     <style>
       html {
         --bg-color: #f0f0f0;
@@ -48,6 +57,9 @@
         --head-fg-color: #fff;
         --blog-code-bg: #e0e0e0;
         --blog-code-fg: rgb(168, 117, 5);
+      }
+      * {
+        -webkit-overflow-scrolling: touch;
       }
     </style>
   </head>

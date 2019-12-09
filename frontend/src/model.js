@@ -3,7 +3,7 @@ import 'boo-route';
 import {localizer} from './localizer';
 
 const model = {
-  server: 'http://localhost:8080'
+  server: ''
 };
 
 model.clearOldBlogQuery = function() {

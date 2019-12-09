@@ -26,8 +26,7 @@ const styles = (theme => {
       backgroundImage: 'var(--head-bg-img)',
       backgroundPosition: 'center center',
       backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      width: '100vw'
+      backgroundRepeat: 'no-repeat'
     },
     loading: {
       position: 'fixed',

@@ -76,7 +76,9 @@ const style = theme => {
         margin: '10px'
       },
       '& table': {
-        width: '100%'
+        display: 'block',
+        width: '100%',
+        overflow: 'auto'
       },
       '& td': {
         borderBottom: '1px solid var(--blog-hr-color)',
@@ -97,6 +99,10 @@ const style = theme => {
         padding: '0px 5px'
       },
       '& ol code': {
+        color: 'rgb(189, 102, 8)',
+        padding: '0px 5px'
+      },
+      '& table code': {
         color: 'rgb(189, 102, 8)',
         padding: '0px 5px'
       },
@@ -218,6 +224,12 @@ class Blog extends Page {
             });
             const index = helper.index_of_blog(node);
             this.setState({index: index});
+          }
+          const mj = window.MathJax || false;
+          try {
+            mj && mj.typeset && mj.typeset();
+          } catch(e) {
+            console.error(e);
           }
           super.enter().then(r());
         }, 10);
