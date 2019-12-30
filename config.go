@@ -15,6 +15,7 @@ type Config struct {
 	Bots           []string `yaml:"bots"`
 	Renderer       string   `yaml:"renderer"`
 	RenderCacheDir string   `yaml:"render_cache_dir"`
+	Passport       string   `yaml:"passport"`
 	AllowCors      bool     `yaml:"allow_cors"`
 }
 

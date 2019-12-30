@@ -56,6 +56,37 @@ func (sr *ServerRenderer) Render(w *httprouter.ResponseWriter, req *http.Request
 	if lang == "" {
 		lang = "en"
 	}
+	write := func(r io.Reader, w *httprouter.ResponseWriter) {
+		if data, err := ioutil.ReadAll(r); err != nil {
+			w.WithStatusCode(500)
+			w.Write([]byte("read body of server render error"))
+		} else {
+			w.Write(data)
+		}
+	}
+	u := sr.server + "/render/" + url.QueryEscape(target)
+	log.Printf("url: %s\n", u)
+	res, err := http.Get(u)
+	if err != nil {
+		log.Printf("render error: %v\n", err)
+		return false
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Printf("render status code %d\n", res.StatusCode)
+		return false
+	}
+	write(res.Body, w)
+
+	return true
+}
+
+func (sr *ServerRenderer) RenderWithCache(w *httprouter.ResponseWriter, req *http.Request) bool {
+	target := sr.url(req)
+	lang := req.FormValue("lang")
+	if lang == "" {
+		lang = "en"
+	}
 	sum := md5.Sum([]byte(target))
 	h := hex.EncodeToString(sum[:])
 	cachefile := path.Join(sr.cacheDir, h+lang+".html")
