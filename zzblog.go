@@ -21,6 +21,80 @@ type Blog struct {
 	file      string
 }
 
+type LangGroup struct {
+	blogs []*Blog
+	defaultLang string
+}
+
+func NewLangGroup(defaultLang string, blog *Blog) *LangGroup {
+	return &LangGroup{[]*Blog{blog}, defaultLang}
+}
+
+func (lg *LangGroup) Select(lang string) *Blog {
+	for _, blog := range lg.blogs {
+		if blog.Lang == lang {
+			return blog
+		}
+	}
+	for _, blog := range lg.blogs {
+		if blog.Lang == lg.defaultLang {
+			return blog
+		}
+	}
+	return lg.blogs[0]
+}
+
+type OneFilter struct {
+	Lang string
+	Cate string
+	Tag string
+}
+
+func (lg *LangGroup) One(filter * OneFilter) *Blog {
+	hasTag := func (tag string, blog *Blog) bool {
+		for _, t := range blog.Tags {
+			if t == tag {
+				return true
+			}
+		}
+		return false
+	}
+	if filter.Lang != "" {
+		blog := lg.Select(filter.Lang)
+		if filter.Cate != "" && filter.Cate != blog.Category {
+			return nil
+		}
+		if filter.Tag != "" && !hasTag(filter.Tag, blog) {
+			return nil
+		}
+		return blog
+	}
+	for _, blog := range lg.blogs {
+		if filter.Cate != "" && filter.Cate != blog.Category {
+			continue
+		}
+		if filter.Tag != "" && !hasTag(filter.Tag, blog) {
+			continue
+		}
+		return blog
+	}
+
+	return nil
+}
+
+func (lg *LangGroup) Add(blog *Blog) {
+	lg.blogs = append(lg.blogs, blog)
+}
+
+func (lg *LangGroup) Del(lang string) {
+	for i, blog := range lg.blogs {
+		if blog.Lang == lang {
+			lg.blogs = append(lg.blogs[:i], lg.blogs[i + 1:]...)
+			return
+		}
+	}
+}
+
 type Contact struct {
 	Label string `json:"label"`
 	Value string `json:"value"`
@@ -142,7 +216,7 @@ type Zzblog interface {
 	Tags(lang string) []string
 	Author(lang string) *Author
 	Theme() []map[string]string
-	Filter(func(*Blog) bool) BlogSet
+	Filter(func(*LangGroup) *Blog) BlogSet
 }
 
 type BlogSet interface {

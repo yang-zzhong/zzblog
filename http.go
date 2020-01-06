@@ -49,26 +49,8 @@ func (h *ZzblogHttp) registerGetBlogs() {
 		if r.FormInt("page_size") != 0 {
 			pageSize = int(r.FormInt("page_size"))
 		}
-		blogs := h.zz.Filter(func(b *Blog) bool {
-			tm := true
-			tc := true
-			lc := true
-			if tag != "" {
-				tm = false
-				for _, t := range b.Tags {
-					if tag == t {
-						tm = true
-						break
-					}
-				}
-			}
-			if cate != "" {
-				tc = cate == b.Category
-			}
-			if lang != "" {
-				lc = lang == b.Lang
-			}
-			return tm && tc && lc
+		blogs := h.zz.Filter(func(group *LangGroup) *Blog {
+			return group.One(&OneFilter{lang, cate, tag})
 		}).Page(page, pageSize).Get()
 		w.Json(blogs)
 	})

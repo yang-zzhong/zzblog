@@ -61,7 +61,7 @@ type StringWithLang struct {
 // Zzblog
 type FileZzblog struct {
 	root   string
-	meta   map[string]*Blog
+	meta   map[string]*LangGroup
 	cates  []StringWithLang
 	langs  []string
 	tags   []StringWithLang
@@ -75,7 +75,7 @@ func NewFileZzblog(root string) *FileZzblog {
 }
 
 func (zz *FileZzblog) Init() error {
-	zz.meta = make(map[string]*Blog)
+	zz.meta = make(map[string]*LangGroup)
 	zz.cates = []StringWithLang{}
 	zz.tags = []StringWithLang{}
 	zz.images = make(map[string]*Image)
@@ -189,30 +189,18 @@ func (zz *FileZzblog) addBlog(file string) error {
 }
 
 func (zz *FileZzblog) Has(id, lang string) bool {
-	_, ok := zz.meta[zz.id(id, lang)]
-	return ok
+	if _, ok := zz.meta[id]; ok {
+		return zz.meta[id].Select(lang).Lang == lang
+	}
+	return false
 }
 
 func (zz *FileZzblog) Get(id string, lang string) *Blog {
-	blog, ok := zz.meta[zz.id(id, lang)]
+	group, ok := zz.meta[id]
 	if ok {
-		return blog
-	}
-	blog, ok = zz.meta[zz.id(id, "en")]
-	if ok {
-		return blog
-	}
-	for _, lang := range zz.langs {
-		blog, ok := zz.meta[zz.id(id, lang)]
-		if ok {
-			return blog
-		}
+		return group.Select(lang)
 	}
 	return nil
-}
-
-func (zz *FileZzblog) id(id, lang string) string {
-	return id + "+" + lang
 }
 
 func (zz *FileZzblog) AddByReader(r io.Reader) (blog *Blog, err error) {
@@ -229,7 +217,7 @@ func (zz *FileZzblog) AddByReader(r io.Reader) (blog *Blog, err error) {
 	blog.Overview = p.Overview
 	blog.Lang = p.Lang
 	blog.Image = p.Image
-	zz.Add(blog)
+	err = zz.Add(blog)
 	return
 }
 
@@ -237,17 +225,21 @@ func (zz *FileZzblog) Add(blog *Blog) error {
 	if blog.URLID == "" {
 		return errors.New("has no urlid field")
 	}
-	zz.meta[zz.id(blog.URLID, blog.Lang)] = blog
 	zz.updateTag(blog.Lang, blog.Tags)
 	zz.updateCate(blog.Lang, blog.Category)
 	zz.updateLangs(blog.Lang)
+	if _, ok := zz.meta[blog.URLID]; ok {
+		zz.meta[blog.URLID].Add(blog)
+		return nil
+	}
+	zz.meta[blog.URLID] = NewLangGroup("zh-CN", blog)
 	return nil
 }
 
-func (zz *FileZzblog) Filter(filter func(*Blog) bool) BlogSet {
+func (zz *FileZzblog) Filter(filter func(*LangGroup) *Blog) BlogSet {
 	blogs := []*Blog{}
-	for _, blog := range zz.meta {
-		if filter(blog) {
+	for _, group := range zz.meta {
+		if blog := filter(group); blog != nil {
 			blogs = append(blogs, blog)
 		}
 	}
