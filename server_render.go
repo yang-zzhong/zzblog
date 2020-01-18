@@ -61,6 +61,10 @@ func (sr *ServerRenderer) Render(w *httprouter.ResponseWriter, req *http.Request
 			w.WithStatusCode(500)
 			w.Write([]byte("read body of server render error"))
 		} else {
+			if len(data) > 0 && data[len(data)-1] == '%' {
+				w.Write(data[0 : len(data)-2])
+				return
+			}
 			w.Write(data)
 		}
 	}
