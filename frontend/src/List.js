@@ -240,19 +240,21 @@ class List extends Page {
         <div className={classes.mainwrapper}>
           <BooWrapper>
             <MainCol>
-              <Grid ref={this.anis.grid} container spacing={2}>
-                {this.state.blogs.map(b => {
-                  return (
-                    <Grid key={b.url_id + Math.random()} xs={12} item>
-                      <div item="true">
-                        <BlogItem blog={b}></BlogItem>
-                      </div>
-                    </Grid>
-                  )
-                })}
-              </Grid>
-              <div className={classes.nomorewrapper}>
-                {this.moreButton()}
+              <div style={{padding: '2px'}}>
+                <Grid ref={this.anis.grid} container spacing={2}>
+                  {this.state.blogs.map(b => {
+                    return (
+                      <Grid key={b.url_id + Math.random()} xs={12} item>
+                        <div item="true">
+                          <BlogItem blog={b}></BlogItem>
+                        </div>
+                      </Grid>
+                    )
+                  })}
+                </Grid>
+                <div className={classes.nomorewrapper}>
+                  {this.moreButton()}
+                </div>
               </div>
             </MainCol>
             <SecondCol>

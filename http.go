@@ -5,6 +5,7 @@ import (
 	httprouter "github.com/yang-zzhong/go-httprouter"
 	"net"
 	"net/http"
+	"strings"
 )
 
 type ZzblogHttp struct {
@@ -33,6 +34,19 @@ func (h *ZzblogHttp) initRouter(docroot string) {
 func (h *ZzblogHttp) registerTheme() {
 	h.router.OnGet("/theme", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
 		w.Json(h.zz.Theme())
+	})
+}
+
+func (h *ZzblogHttp) registerSitemap() {
+	h.router.OnGet("/sitemap.txt", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
+		data := []string{}
+		h.zz.Filter(func(group *LangGroup) *Blog {
+			group.Each(func(blog *Blog) {
+				data = append(data, GetConfig().Domain+"/"+blog.URLID+"?lang="+blog.Lang)
+			})
+			return nil
+		})
+		w.WriteString(strings.Join(data, "\n"))
 	})
 }
 
@@ -188,6 +202,7 @@ func (h *ZzblogHttp) Start(addr string) error {
 		h.registerForImage()
 		h.registerAuthor()
 		h.registerTheme()
+		h.registerSitemap()
 	})
 	l, err := net.Listen("tcp4", addr)
 	if err != nil {

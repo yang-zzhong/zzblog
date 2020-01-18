@@ -22,12 +22,22 @@ type Blog struct {
 }
 
 type LangGroup struct {
-	blogs []*Blog
+	blogs       []*Blog
 	defaultLang string
 }
 
 func NewLangGroup(defaultLang string, blog *Blog) *LangGroup {
 	return &LangGroup{[]*Blog{blog}, defaultLang}
+}
+
+func (lg *LangGroup) SelectFirst() *Blog {
+	return lg.blogs[0]
+}
+
+func (lg *LangGroup) Each(handle func(*Blog)) {
+	for _, blog := range lg.blogs {
+		handle(blog)
+	}
 }
 
 func (lg *LangGroup) Select(lang string) *Blog {
@@ -47,11 +57,11 @@ func (lg *LangGroup) Select(lang string) *Blog {
 type OneFilter struct {
 	Lang string
 	Cate string
-	Tag string
+	Tag  string
 }
 
-func (lg *LangGroup) One(filter * OneFilter) *Blog {
-	hasTag := func (tag string, blog *Blog) bool {
+func (lg *LangGroup) One(filter *OneFilter) *Blog {
+	hasTag := func(tag string, blog *Blog) bool {
 		for _, t := range blog.Tags {
 			if t == tag {
 				return true
@@ -89,7 +99,7 @@ func (lg *LangGroup) Add(blog *Blog) {
 func (lg *LangGroup) Del(lang string) {
 	for i, blog := range lg.blogs {
 		if blog.Lang == lang {
-			lg.blogs = append(lg.blogs[:i], lg.blogs[i + 1:]...)
+			lg.blogs = append(lg.blogs[:i], lg.blogs[i+1:]...)
 			return
 		}
 	}

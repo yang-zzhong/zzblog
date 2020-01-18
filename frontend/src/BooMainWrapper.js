@@ -26,7 +26,8 @@ const mainColStyles = makeStyles(theme => ({
     display: 'block',
     width: '100%',
     color: 'inherit',
-    background: 'inherit'
+    background: 'inherit',
+    overflow: 'hidden',
   }
 }));
 

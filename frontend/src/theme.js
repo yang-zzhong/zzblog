@@ -20,7 +20,11 @@ export const theme = {
     });
   },
   guess: function() {
-    return localStorage.getItem('theme');
+    let t = localStorage.getItem('theme');
+    if (!t && theme.list.length > 0) {
+      t = theme.list[0].name;
+    }
+    return t;
   },
   use: function(name) {
     let content = false

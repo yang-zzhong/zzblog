@@ -2,7 +2,7 @@ import React from 'react';
 import Page from './Page';
 import model from './model';
 import {animation} from './animation';
-import {BooWrapper, MainCol} from './BooMainWrapper';
+import {BooWrapper, MainCol, SecondCol} from './BooMainWrapper';
 import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
 import IconButton from '@material-ui/core/IconButton';
@@ -16,6 +16,7 @@ import {strings} from './localizer';
 import {helper} from './helper';
 import {formatter} from './formatter';
 import BooIndex from './BlogIndex';
+import UserTopBar from './UserTopBar';
 import 'highlight.js/styles/monokai.css';
 
 
@@ -24,8 +25,9 @@ const style = theme => {
     root: {
       backgroundColor: 'var(--card-bg-color)',
       color: 'var(--card-fg-color)',
-      boxShadow: '1px 1px 20px var(--shadow-color)',
+      boxShadow: '0px 0px 2px var(--shadow-color)',
       minHeight: '50vh',
+      margin: '2px',
       padding: '20px'
     },
     row: {
@@ -125,7 +127,7 @@ const style = theme => {
     },
     sticky: {
       padding: '0px 8px',
-      height: '64px',
+      minHeight: '64px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -138,10 +140,15 @@ const style = theme => {
         transition: '.2s all ease-in-out'
       }
     },
+    index: {
+      maxHeight: 'calc(100vh - 100px)',
+      paddingTop: '20px',
+      overflow: 'auto'
+    },
     stickyRaised: {
       padding: '0px 8px',
       zIndex: 100,
-      height: '64px',
+      minHeight: '64px',
       fontSize: '.8em',
       display: 'flex',
       alignItems: 'center',
@@ -178,6 +185,8 @@ class Blog extends Page {
       user: {
         name: 'USER NAME',
         avatar: '',
+        bio: 'has no bio info',
+        contacts: []
       }
     };
     this.content = React.createRef();
@@ -199,18 +208,13 @@ class Blog extends Page {
         if (this.show && ctx.path_params.url_id) {
           this.enter();
           model.userInfo().then(info => {
-            this.setState({user: {
-              name: info.name,
-              avatar: info.avatar
-            }});
+            this.setState({user:info});
           });
         }
       });
       model.userInfo().then(info => {
-        this.setState({user: {
-          name: info.name,
-          avatar: info.avatar
-        }});
+        console.log(info);
+        this.setState({user: info});
       });
     }
     return model.blog().then(blog => {
@@ -284,49 +288,55 @@ class Blog extends Page {
     window.boo.location.go(item.url);
   }
 
+  renderMenu() {
+    return (
+      <div>
+        <IconButton
+          aria-label="select a theme to apply"
+          aria-controls="menu-appbar"
+          aria-haspopup="true"
+          onClick={this.handleMenu.bind(this)}
+          color="inherit"
+        >
+          <ExpandMoreIcon />
+        </IconButton>
+        <Menu
+          id="menu-appbar"
+          anchorEl={this.state.anchorEl}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          keepMounted
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          open={Boolean(this.state.anchorEl)}
+          onClose={this.handleClose.bind(this)}
+        >
+          <div style={{padding: '10px'}}>
+
+            <BooIndex index={this.state.index} onItemClick={this.indexClicked.bind(this)} />
+          </div>
+
+        </Menu>
+      </div>
+    );
+  }
+
   render() {
     const { classes } = this.props;
     return (
       <div style={{padding: '0px 0px 100px 0px'}}>
-        <div ref={this.content} className={classes.root}>
-          <BooWrapper>
-            <MainCol>
+        <BooWrapper>
+          <MainCol>
+            <div ref={this.content} className={classes.root}>
               <div style={{padding: '10px 0px', margin: '0px -20px'}}>
                 <BooSticky top={0} onRaised={this.onStickyRaised.bind(this)}>
                   <div className={this.state.stickyClass}>
                     <h1>{this.state.blog.title}</h1>
-                    <div>
-                      <IconButton
-                        aria-label="select a theme to apply"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={this.handleMenu.bind(this)}
-                        color="inherit"
-                      >
-                        <ExpandMoreIcon />
-                      </IconButton>
-                      <Menu
-                        id="menu-appbar"
-                        anchorEl={this.state.anchorEl}
-                        anchorOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'right',
-                        }}
-                        open={Boolean(this.state.anchorEl)}
-                        onClose={this.handleClose.bind(this)}
-                      >
-                        <div style={{padding: '10px'}}>
-
-                          <BooIndex index={this.state.index} onItemClick={this.indexClicked.bind(this)} />
-                        </div>
-
-                      </Menu>
-                    </div>
+                    {this.renderMenu()}
                   </div>
                 </BooSticky>
               </div>
@@ -356,9 +366,19 @@ class Blog extends Page {
                   {this.state.blog.content}
                 </Markdown>
               </div>
-            </MainCol>
-          </BooWrapper>
-        </div>
+            </div>
+          </MainCol>
+          <SecondCol>
+            <div style={{marginTop: '20vh'}}>
+              <UserTopBar user={this.state.user}></UserTopBar>
+              <BooSticky top={20}>
+                <div className={classes.index}>
+                    <BooIndex index={this.state.index} onItemClick={this.indexClicked.bind(this)} />
+                </div>
+              </BooSticky>
+            </div>
+          </SecondCol>
+        </BooWrapper>
       </div>
     )
   }

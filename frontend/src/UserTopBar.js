@@ -10,7 +10,7 @@ const styles = (theme => ({
 	root: {
 		backgroundColor: 'var(--card-bg-color)',
 		color: 'var(--card-fg-color)',
-    boxShadow: '1px 1px 20px var(--shadow-color)',
+    boxShadow: '1px 1px 5px var(--shadow-color)',
     display: 'block'
 	},
   a: {
@@ -81,7 +81,7 @@ class UserTopBar extends React.Component {
         <Grid className={classes.user} container spacing={2}>
           <Grid item>
             <ButtonBase className={classes.image}>
-              <img className={classes.img} alt="complex" src={model.imageUrl(this.props.user.avatar, 80)} />
+              <img className={classes.img} onClick={() => window.boo.location.go('/')} alt="complex" src={model.imageUrl(this.props.user.avatar, 80)} />
             </ButtonBase>
           </Grid>
           <Grid item xs={12} sm container>

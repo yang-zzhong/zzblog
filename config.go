@@ -10,6 +10,7 @@ var globalConfig Config
 // Config ...
 type Config struct {
 	Port           string   `yaml:"port"`
+	Domain         string   `yaml:"domain"`
 	Root           string   `yaml:"root"`
 	DocRoot        string   `yaml:"doc_root"`
 	Bots           []string `yaml:"bots"`

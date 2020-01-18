@@ -76,6 +76,9 @@ export const helper = {
 
     const insert_index = (root, item) => {
       let len = root.children.length - 1;
+      let id = "a" + MD5.hash(node.innerHTML);
+      item.url = '#' + id;
+      item.node.setAttribute("id", id);
       if (root.children.length === 0 || root.weight === item.weight - 1) {
         root.children.push(item);
         return;
@@ -87,13 +90,14 @@ export const helper = {
       insert_index(root.children[len], item);
     };
 
-    let root = {weight: 0, children: []};
+    let root = {id: 'a', weight: 0, children: []};
     node.querySelectorAll('h1,h2,h3,h4').forEach((node) => {
       const id = "a" + MD5.hash(node.innerHTML);
-      node.setAttribute("id", id);
       let item = {
-        url: '#' + id,
+        id: id,
+        url: '#' + root.id + id,
         name: node.textContent,
+        node: node,
         opened: true,
         weight: parseInt(node.tagName.substr(1,1)),
         children: []
