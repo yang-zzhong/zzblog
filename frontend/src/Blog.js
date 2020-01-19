@@ -201,6 +201,7 @@ class Blog extends Page {
       return super.enter();
     }
     this.urlid = ctx.path_params.url_id;
+    let promises = [];
     if (!this.inited) {
       this.inited = true;
       window.addEventListener('lang-changed', e => {
@@ -212,11 +213,12 @@ class Blog extends Page {
           this.enter();
         }
       });
-      model.userInfo().then(info => {
+      promises.push(model.userInfo().then(info => {
         this.setState({user: info});
-      });
+        return new Promise(r => r());
+      }));
     }
-    return model.blog().then(blog => {
+    promises.push(model.blog().then(blog => {
       this.setState({blog: blog});
       return new Promise(r => {
         setTimeout(() => {
@@ -237,6 +239,12 @@ class Blog extends Page {
           super.enter().then(r());
         }, 10);
       });
+    }));
+    return Promise.all(promises).then(() => {
+      helper.updateTitle(this.state.blog.title + ' - ' + this.state.user.name + ' - ' + 'iiiboo');
+      helper.updateDescription(this.state.blog.overview);
+      helper.updateKeywords(this.state.blog.tags);
+      return new Promise(r => r());
     });
   }
 

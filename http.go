@@ -39,7 +39,7 @@ func (h *ZzblogHttp) registerTheme() {
 
 func (h *ZzblogHttp) registerSitemap() {
 	h.router.OnGet("/sitemap.txt", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
-		data := []string{}
+		data := []string{GetConfig().Domain + "?lang=en", GetConfig().Domain + "?lang=zh-CN"}
 		h.zz.Filter(func(group *LangGroup) *Blog {
 			group.Each(func(blog *Blog) {
 				data = append(data, GetConfig().Domain+"/"+blog.URLID+"?lang="+blog.Lang)
@@ -88,6 +88,7 @@ func (h *ZzblogHttp) registerGetBlog() {
 			"title":      blog.Title,
 			"tags":       blog.Tags,
 			"category":   blog.Category,
+			"overview":   blog.Overview,
 			"lang":       blog.Lang,
 			"created_at": blog.CreatedAt,
 			"updated_at": blog.UpdatedAt,

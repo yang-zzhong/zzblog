@@ -2,6 +2,7 @@ import React from 'react'
 import Page from './Page';
 import {animation} from './animation';
 import {withStyles} from '@material-ui/core/styles';
+import {helper} from './helper';
 import  CircularProgress from '@material-ui/core/CircularProgress';
 import BooSticky from './BooSticky';
 import {strings} from './localizer';
@@ -71,12 +72,14 @@ class List extends Page {
   }
 
   tagAndCate() {
-    model.cates().then(cates => {
-      this.setState({cates: cates});
-      this.updateSelected();
-    });
     model.tags().then(tags => {
       this.setState({tags: tags});
+      return new Promise(r => r());
+    });
+    return model.cates().then(cates => {
+      this.setState({cates: cates});
+      this.updateSelected();
+      return new Promise(r => r());
     });
   }
 
@@ -99,9 +102,25 @@ class List extends Page {
       });
     }
     if (!this.tagAndCateReady) {
-      this.tagAndCate();
-      model.userInfo().then(info => {
-        this.setState({user: info});
+      Promise.all([
+        this.tagAndCate(),
+        model.userInfo().then(info => {
+          this.setState({user: info});
+          return new Promise(r => r());
+        })
+      ]).then(() => {
+        const info = this.state.user;
+        helper.updateTitle(info.name + ' - iiiboo');
+        let desc = [info.name + '\'s home page. ', 'bio: ' + info.bio];
+        for(let i =0; i < info.contacts.length; ++i) {
+          desc.push(info.contacts[i].label + ': ' + info.contacts[i].value);
+        }
+        helper.updateDescription(desc.join('\n'));
+        let keywords = ['iiiboo', info.name];
+        for(let i = 0; i < this.state.cates.length; ++i) {
+          keywords.push(this.state.cates[i]);
+        }
+        helper.updateKeywords(keywords);
       });
       this.tagAndCateReady = true;
     }
