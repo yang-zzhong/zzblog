@@ -47,9 +47,20 @@ export const localizer = {
     return localizer.browser();
   },
   use: function(lang) {
+    if (!localizer.has(lang)) {
+      lang = lang.split('-')[0];
+    }
     strings.setLanguage(lang);
     localStorage.setItem('lang', lang);
     notify(lang);
+  },
+  has: function(lang) {
+    for (let i = 0; i < localizer.langs.length; ++i) {
+      if (localizer.langs[i].name === lang) {
+        return true;
+      }
+    }
+    return false;
   },
   browser: function() {
     if (navigator.appName === 'Netscape') {

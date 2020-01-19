@@ -27,22 +27,7 @@ const style = {
     },
     '& [prefix=true]:hover': {
       cursor: 'pointer'
-    },
-    '& li>ul:hover': {
-      cursor: 'pointer'
-    },
-    '& li>ul': {
-      display: 'none'
-    },
-    '& li[opened=true]>ul': {
-      display: 'block'
-    },
-    '& [prefix=true]': {
-      display: 'inline-block'
-    },
-    '& [prefix=true]:hover': {
-      cursor: 'pointer'
-    },
+    }
   },
   index: {
     listStyle: 'none',

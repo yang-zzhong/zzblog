@@ -204,16 +204,15 @@ class Blog extends Page {
     if (!this.inited) {
       this.inited = true;
       window.addEventListener('lang-changed', e => {
+        model.userInfo().then(info => {
+          this.setState({user:info});
+        });
         this.urlid = null;
         if (this.show && ctx.path_params.url_id) {
           this.enter();
-          model.userInfo().then(info => {
-            this.setState({user:info});
-          });
         }
       });
       model.userInfo().then(info => {
-        console.log(info);
         this.setState({user: info});
       });
     }

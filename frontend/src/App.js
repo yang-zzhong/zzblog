@@ -157,12 +157,21 @@ class App extends React.Component {
   }
 
   setLangLabel(lang) {
-    for (let i = 0; i < this.state.langs.length; ++i) {
-      if (this.state.langs[i].name === lang) {
-        this.setState({langLabel: this.state.langs[i].label});
-        break;
+    const setLangState = lang => {
+      for (let i = 0; i < this.state.langs.length; ++i) {
+        if (this.state.langs[i].name === lang) {
+          this.setState({langLabel: this.state.langs[i].label});
+          return true;
+        }
       }
+      return false;
+    };
+    if (setLangState(lang)) {
+      return;
     }
+    let la = lang.split('-');
+    console.log(la);
+    setLangState(la[0]);
   }
 
   route(pageName, tail) {
@@ -170,6 +179,7 @@ class App extends React.Component {
       this.setState({langs: langs});
       if (this.lang === undefined) {
         this.lang = localizer.guess();
+        console.log(this.lang);
         localizer.use(this.lang);
       }
       return new Promise(r => r());

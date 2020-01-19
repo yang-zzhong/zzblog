@@ -21,10 +21,21 @@ export const theme = {
   },
   guess: function() {
     let t = localStorage.getItem('theme');
+    if (!t && theme.has('light')) {
+      return 'light';
+    }
     if (!t && theme.list.length > 0) {
-      t = theme.list[0].name;
+      return theme.list[0].name;
     }
     return t;
+  },
+  has: function(name) {
+    for (let i = 0; i < theme.list.length; ++i) {
+      if (theme.list[i].name === name) {
+        return true;
+      }
+    }
+    return false;
   },
   use: function(name) {
     let content = false
