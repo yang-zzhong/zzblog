@@ -52,12 +52,15 @@ func (sr *ServerRenderer) After(w *httprouter.ResponseWriter, _ *httprouter.Requ
 	return true
 }
 
-func (sr *ServerRenderer) is404(u * url.URL) bool {
+func (sr *ServerRenderer) is404(path string) bool {
+	if path == "/" || path == "" {
+		return false
+	}
 	// 是否是已存在的文章
 	has := false
 	sr.zzblog.Filter(func(l * LangGroup) *Blog {
 		l.Each(func (b *Blog) bool {
-			if "/" + b.URLID == u.Path {
+			if "/" + b.URLID == path {
 				has = true
 			}
 			return has
@@ -65,26 +68,27 @@ func (sr *ServerRenderer) is404(u * url.URL) bool {
 		return nil
 	})
 	if has {
-		return true
+		return false
 	}
 	// 是否是请求标签
 	for _, tag := range sr.zzblog.Tags("") {
-		if u.Path == "/tags/" + tag {
-			return true
+		if path == "/tags/" + tag {
+			return false
 		}
 	}
 	// 是否是请求分类
 	for _, cate := range sr.zzblog.Cates("") {
-		if u.Path == "/cates/" +cate {
-			return true
+		if path == "/cates/" +cate {
+			return false
 		}
 	}
-	return false
+	return true
 }
 
 func (sr *ServerRenderer) Render(w *httprouter.ResponseWriter, req *http.Request) bool {
-	if sr.is404(req.URL) {
+	if sr.is404(req.URL.Path) {
 		w.WithStatusCode(404)
+		w.WriteString("Page Not Found")
 		return true
 	}
 	target := sr.url(req)
