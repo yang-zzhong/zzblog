@@ -300,7 +300,7 @@ func (zz *FileZzblog) updateTag(lang string, tags []string) {
 func (zz *FileZzblog) Cates(lang string) []string {
 	cates := []string{}
 	for _, cate := range zz.cates {
-		if cate.Lang == lang {
+		if lang == "" || lang != "" && cate.Lang == lang {
 			cates = append(cates, cate.Val)
 		}
 	}
@@ -310,7 +310,7 @@ func (zz *FileZzblog) Cates(lang string) []string {
 func (zz *FileZzblog) Tags(lang string) []string {
 	tags := []string{}
 	for _, t := range zz.tags {
-		if t.Lang == lang {
+		if lang == "" || lang != "" && t.Lang == lang {
 			tags = append(tags, t.Val)
 		}
 	}
@@ -322,12 +322,12 @@ func (zz *FileZzblog) Author(lang string) *Author {
 	file, err := os.Open(path.Join(zz.root, "author-"+lang+".json"))
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Print("%v\n", err)
+			log.Printf("%v\n", err)
 			return nil
 		}
 		file, err = os.Open(path.Join(zz.root, "author.json"))
 		if err != nil {
-			log.Print("%v\n", err)
+			log.Printf("%v\n", err)
 			return nil
 		}
 	}

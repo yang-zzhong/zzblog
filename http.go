@@ -41,8 +41,9 @@ func (h *ZzblogHttp) registerSitemap() {
 	h.router.OnGet("/sitemap.txt", func(w *httprouter.ResponseWriter, r *httprouter.Request) {
 		data := []string{GetConfig().Domain + "?lang=en", GetConfig().Domain + "?lang=zh-CN"}
 		h.zz.Filter(func(group *LangGroup) *Blog {
-			group.Each(func(blog *Blog) {
+			group.Each(func(blog *Blog) bool {
 				data = append(data, GetConfig().Domain+"/"+blog.URLID+"?lang="+blog.Lang)
+				return false
 			})
 			return nil
 		})
@@ -184,7 +185,8 @@ func (h *ZzblogHttp) Start(addr string) error {
 		sr := NewServerRenderer(
 			GetConfig().Bots,
 			GetConfig().Renderer,
-			GetConfig().RenderCacheDir)
+			GetConfig().RenderCacheDir,
+			h.zz)
 		if sr == nil {
 			return errors.New("can not create render cache dir")
 		}

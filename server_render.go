@@ -17,11 +17,13 @@ import (
 
 type ServerRenderer struct {
 	bots     []string
+	hasPage  []string
 	server   string
 	cacheDir string
+	zzblog 	 Zzblog
 }
 
-func NewServerRenderer(bots []string, server string, cachedir string) *ServerRenderer {
+func NewServerRenderer(bots []string, server string, cachedir string, zzblog Zzblog) *ServerRenderer {
 	_, err := os.Stat(cachedir)
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -31,7 +33,7 @@ func NewServerRenderer(bots []string, server string, cachedir string) *ServerRen
 			return nil
 		}
 	}
-	return &ServerRenderer{bots, server, cachedir}
+	return &ServerRenderer{bots, []string{}, server, cachedir, zzblog}
 }
 
 func (sr *ServerRenderer) Before(w *httprouter.ResponseWriter, req *httprouter.Request) bool {
@@ -50,7 +52,41 @@ func (sr *ServerRenderer) After(w *httprouter.ResponseWriter, _ *httprouter.Requ
 	return true
 }
 
+func (sr *ServerRenderer) is404(u * url.URL) bool {
+	// 是否是已存在的文章
+	has := false
+	sr.zzblog.Filter(func(l * LangGroup) *Blog {
+		l.Each(func (b *Blog) bool {
+			if "/" + b.URLID == u.Path {
+				has = true
+			}
+			return has
+		})
+		return nil
+	})
+	if has {
+		return true
+	}
+	// 是否是请求标签
+	for _, tag := range sr.zzblog.Tags("") {
+		if u.Path == "/tags/" + tag {
+			return true
+		}
+	}
+	// 是否是请求分类
+	for _, cate := range sr.zzblog.Cates("") {
+		if u.Path == "/cates/" +cate {
+			return true
+		}
+	}
+	return false
+}
+
 func (sr *ServerRenderer) Render(w *httprouter.ResponseWriter, req *http.Request) bool {
+	if sr.is404(req.URL) {
+		w.WithStatusCode(404)
+		return true
+	}
 	target := sr.url(req)
 	lang := req.FormValue("lang")
 	if lang == "" {

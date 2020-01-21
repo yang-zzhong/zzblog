@@ -34,9 +34,11 @@ func (lg *LangGroup) SelectFirst() *Blog {
 	return lg.blogs[0]
 }
 
-func (lg *LangGroup) Each(handle func(*Blog)) {
+func (lg *LangGroup) Each(handle func(*Blog) bool) {
 	for _, blog := range lg.blogs {
-		handle(blog)
+		if handle(blog) {
+			return
+		}
 	}
 }
 
