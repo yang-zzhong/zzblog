@@ -256,10 +256,8 @@ func handleUrlid(v string, blog *ParsedBlog) error {
 		} else if l == 0 {
 			continue
 		}
-		if buf[0] >= 'A' && buf[0] <= 'z' || buf[0] == '-' {
+		if (buf[0] >= 'A') && (buf[0] <= 'Z') || (buf[0] >= 'a' && buf[0] <= 'z') || (buf[0] == '-') {
 			temp = append(temp, buf[0])
-		} else {
-			return errors.New("urlid only support A-z_, found '" + string(buf[0]) + "'")
 		}
 	}
 }
