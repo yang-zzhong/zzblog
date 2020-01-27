@@ -2,6 +2,7 @@ package zzblog
 
 import (
 	"io"
+	"log"
 	"os"
 	"sort"
 	"time"
@@ -152,10 +153,16 @@ type MBlogSet struct {
 func NewMBlogSet(blogs []*Blog) *MBlogSet {
 	bs := new(MBlogSet)
 	bs.sort = make(map[int]int)
+	bs.sort[SC_TIME] = ST_DESC
 	bs.page = 0
 	bs.pageSize = 10
 	bs.blogs = blogs
 	return bs
+}
+
+func (set *MBlogSet) ClearSort() BlogSet {
+	set.sort = make(map[int]int)
+	return set
 }
 
 func (set *MBlogSet) Sort(key, t int) BlogSet {
@@ -198,7 +205,9 @@ func (set *MBlogSet) Swap(i, j int) {
 }
 
 func (set *MBlogSet) Get() []*Blog {
+	log.Printf("before: %v\n", set.blogs)
 	sort.Sort(set)
+	log.Printf("after: %v\n", set.blogs)
 	if set.page == 0 {
 		return set.blogs
 	}
@@ -230,6 +239,7 @@ type Zzblog interface {
 }
 
 type BlogSet interface {
+	ClearSort() BlogSet
 	Sort(key, t int) BlogSet
 	Page(p, ps int) BlogSet
 	Get() []*Blog

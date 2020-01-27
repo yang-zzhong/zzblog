@@ -49,9 +49,8 @@ export default function BlogItem(props) {
       </CardContent>
       <CardActions>
         <Typography gutterBottom variant="overline" component="span">
-          {strings.formatString(strings.edited, {
-            time: formatter.format_time(props.blog.updated_at),
-            author: ""
+          {strings.formatString(strings.edited_at, {
+            time: formatter.format_time(props.blog.updated_at)
           })}
         </Typography>
       </CardActions>
