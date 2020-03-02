@@ -6,11 +6,21 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"zzblog/log"
 )
 
+type zzblogRouter struct {
+	*httprouter.Router
+}
+
 type ZzblogHttp struct {
-	router *httprouter.Router
+	router *zzblogRouter
 	zz     Zzblog
+}
+
+func (r *zzblogRouter) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	rw := r.Router.HandleRequest(w, req)
+	log.Printf("http", "%s\t%s\t%v\t%d\t%s", req.Method, req.URL.Path, req.Proto, rw.StatusCode, req.RemoteAddr)
 }
 
 func NewHttp(root string, docroot string) *ZzblogHttp {
@@ -24,10 +34,11 @@ func NewHttp(root string, docroot string) *ZzblogHttp {
 }
 
 func (h *ZzblogHttp) initRouter(docroot string) {
-	h.router = httprouter.NewRouter()
-	h.router.DocRoot = docroot
-	if h.router.DocRoot == "" {
-		h.router.Tries = []string{httprouter.Api}
+	h.router = &zzblogRouter{}
+	h.router.Router = httprouter.NewRouter()
+	h.router.Router.DocRoot = docroot
+	if h.router.Router.DocRoot == "" {
+		h.router.Router.Tries = []string{httprouter.Api}
 	}
 }
 
@@ -190,7 +201,7 @@ func (h *ZzblogHttp) Start(addr string) error {
 		if sr == nil {
 			return errors.New("can not create render cache dir")
 		}
-		h.router.BeforeEntryFile = func(w *httprouter.ResponseWriter, req *http.Request, _ string) bool {
+		h.router.Router.BeforeEntryFile = func(w *httprouter.ResponseWriter, req *http.Request, _ string) bool {
 			return sr.Before(w, &httprouter.Request{nil, req})
 		}
 	}

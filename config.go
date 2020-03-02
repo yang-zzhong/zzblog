@@ -12,6 +12,7 @@ type Config struct {
 	Port           string   `yaml:"port"`
 	Domain         string   `yaml:"domain"`
 	Root           string   `yaml:"root"`
+	LogPath        string   `yaml:"log_path"`
 	DocRoot        string   `yaml:"doc_root"`
 	Bots           []string `yaml:"bots"`
 	Renderer       string   `yaml:"renderer"`

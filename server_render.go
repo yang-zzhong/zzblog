@@ -6,13 +6,13 @@ import (
 	httprouter "github.com/yang-zzhong/go-httprouter"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"regexp"
 	"strings"
+	"zzblog/log"
 )
 
 type ServerRenderer struct {
@@ -20,7 +20,7 @@ type ServerRenderer struct {
 	hasPage  []string
 	server   string
 	cacheDir string
-	zzblog 	 Zzblog
+	zzblog   Zzblog
 }
 
 func NewServerRenderer(bots []string, server string, cachedir string, zzblog Zzblog) *ServerRenderer {
@@ -37,14 +37,14 @@ func NewServerRenderer(bots []string, server string, cachedir string, zzblog Zzb
 }
 
 func (sr *ServerRenderer) Before(w *httprouter.ResponseWriter, req *httprouter.Request) bool {
-	log.Printf("user-agent %s\n", req.Header.Get("User-Agent"))
 	for _, bot := range sr.bots {
 		reg := regexp.MustCompile("(?i)" + bot)
 		if reg.MatchString(req.Header.Get("User-Agent")) {
-			log.Printf("begin renderer\n")
+			log.Printf("spider", "%s %s\n", req.Header.Get("user-Agent"), req.URL.Path)
 			return !sr.Render(w, req.Request)
 		}
 	}
+	log.Printf("user", "%s %s %s\n", req.Header.Get("User-Agent"), req.URL.Path, req.RemoteAddr)
 	return true
 }
 
@@ -58,9 +58,9 @@ func (sr *ServerRenderer) is404(path string) bool {
 	}
 	// 是否是已存在的文章
 	has := false
-	sr.zzblog.Filter(func(l * LangGroup) *Blog {
-		l.Each(func (b *Blog) bool {
-			if "/" + b.URLID == path {
+	sr.zzblog.Filter(func(l *LangGroup) *Blog {
+		l.Each(func(b *Blog) bool {
+			if "/"+b.URLID == path {
 				has = true
 			}
 			return has
@@ -72,13 +72,13 @@ func (sr *ServerRenderer) is404(path string) bool {
 	}
 	// 是否是请求标签
 	for _, tag := range sr.zzblog.Tags("") {
-		if path == "/tags/" + tag {
+		if path == "/tags/"+tag {
 			return false
 		}
 	}
 	// 是否是请求分类
 	for _, cate := range sr.zzblog.Cates("") {
-		if path == "/cates/" +cate {
+		if path == "/cates/"+cate {
 			return false
 		}
 	}
@@ -105,15 +105,14 @@ func (sr *ServerRenderer) Render(w *httprouter.ResponseWriter, req *http.Request
 		}
 	}
 	u := sr.server + "/render/" + url.QueryEscape(target)
-	log.Printf("url: %s\n", u)
 	res, err := http.Get(u)
 	if err != nil {
-		log.Printf("render error: %v\n", err)
+		log.Printf("spider", "server render error: %v\n", err)
 		return false
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Printf("render status code %d\n", res.StatusCode)
+		log.Printf("spider", "render status code %d\n", res.StatusCode)
 		return false
 	}
 	for key, val := range res.Header {
@@ -157,15 +156,14 @@ func (sr *ServerRenderer) RenderWithCache(w *httprouter.ResponseWriter, req *htt
 		return false
 	}
 	u := sr.server + "/render/" + url.QueryEscape(target)
-	log.Printf("url: %s\n", u)
 	res, err := http.Get(u)
 	if err != nil {
-		log.Printf("render error: %v\n", err)
+		log.Printf("spider", "render error: %v\n", err)
 		return false
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		log.Printf("render status code %d\n", res.StatusCode)
+		log.Printf("spider", "render status code %d\n", res.StatusCode)
 		return false
 	}
 	io.Copy(file, res.Body)
