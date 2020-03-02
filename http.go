@@ -3,6 +3,7 @@ package zzblog
 import (
 	"errors"
 	httprouter "github.com/yang-zzhong/go-httprouter"
+	"html"
 	"net"
 	"net/http"
 	"strings"
@@ -53,11 +54,23 @@ func (h *ZzblogHttp) registerSitemap() {
 		data := []string{GetConfig().Domain + "?lang=en", GetConfig().Domain + "?lang=zh-CN"}
 		h.zz.Filter(func(group *LangGroup) *Blog {
 			group.Each(func(blog *Blog) bool {
-				data = append(data, GetConfig().Domain+"/"+blog.URLID+"?lang="+blog.Lang)
+				url := GetConfig().Domain + "/" + blog.URLID + "?lang=" + blog.Lang
+				if r.FormValue("format") == "xml" {
+					url = html.EscapeString(url)
+				}
+				data = append(data, url)
 				return false
 			})
 			return nil
 		})
+		if r.FormValue("format") == "xml" {
+			output := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" +
+				"\t<url>" + strings.Join(data, "</url>\n\t<url>") + "</url>\n" +
+				"</urlset>\n"
+			w.WriteString(output)
+			return
+		}
 		w.WriteString(strings.Join(data, "\n"))
 	})
 }
