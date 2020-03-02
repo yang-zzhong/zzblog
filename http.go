@@ -66,7 +66,7 @@ func (h *ZzblogHttp) registerSitemap() {
 		if r.FormValue("format") == "xml" {
 			output := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" +
-				"\t<url>" + strings.Join(data, "</url>\n\t<url>") + "</url>\n" +
+				"\t<url><loc>" + strings.Join(data, "</loc></url>\n\t<url>") + "</url>\n" +
 				"</urlset>\n"
 			w.WriteString(output)
 			return
