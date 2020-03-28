@@ -1,68 +1,69 @@
-
 +---+
 
 urlid: zzblog-readme
 
-title:ablout zzblog
+title: zzblog - 一个个人博客系统
 
 tags: #zzblog, #design
 
 category: zzblog
 
-overview: zzblog is a personal blog system, it parse a direction to find images, blog markdowns for the web content.
+overview: zzblog是一个个人博客系统，包含一个拓展的markdown解释器，它能解析一个markdown的头部和内容，然后交给web服务器展示起内容。jj
 
-lang: en
-
+lang: zh-CN
 +---+
 
 
 ## INTRO
 
-I have wanted a blog system that on my taste for a long time, I've designed and implemented it as I had a long rest time after quit the last job. it included a parser to parse the blog head from a extended markdown syntax. gathering the categories, tags from the blog head to organize the contents.
+因为辞去了上一份工作，因此我有了一段空闲时间，正好借助这段时间设计和实现我一直都想着手做的一个个人博客系统。虽然晚上已经有类似的开源项目，但是其前段的用户体验不满足我的要求，且没办法前后端分离。该项目包含
 
-the product sample on [ironwell young's home page](https://iiiboo.cn), if the traffic bad, please be patient because of the host in the china mainland. but I will move it to the out side of the wall ofter I get a credit card. get the code on [github](https://github.com/yang-zzong/zzblog)
+* 一个markdown拓展的解释器
+* react实现的单页应用前端
+* 依赖rendertron的服务端呈现帮助爬虫发现该网站内容
 
-## INSTALL
+我已经将这些代码用于我的个人博客 [薛定谔的猫](https://iiiboo.cn), 如果网络很差，请保持耐心，该服务器在中国大陆. 当我拿到属于我的信用卡之后我会将这个服务迁移到墙外. 从[github](https://github.com/yang-zzong/zzblog)获取其源代码
 
-get code from github
+## 安装 
+
+从github上获取源代码
 
 ```
 $ git clone https://github.com/yang-zzhong/zzblog && cd zzblog
 ```
 
-### FRONTEND
-
-edit `frontend/src/model.js`
+### 前端
+编辑`frontend/src/model.js`
 
 ```js
 const model = {
-    server: 'http://localhost:8080', // edit this line to `server: ''`
+    server: 'http://localhost:8080', // 将这行代码改为 `server: ''`
 };
 ```
 
-then
+之后
 
 ```bash
 $ cd frontend && npm run build
 ```
 
-#### REQUIREMENT
+#### 需求
 
 * npm
 * react
 
-### compile and install backend
+### 编译及安装后端
 
 ```bash
 $ go get ./... && cd main && go build && mv main /path/to/bin/
 ```
-U can modify the systemd to manage the process through edit a service file follow below.
+你可以修改根据下面的步骤使用systemd去管理该服务
 
 ```bash
 $ vim zzblog.service
 ```
 
-copy below content to the file
+复制下面的内容到zzblog.service
 
 ```
 [Unit]
@@ -78,25 +79,26 @@ User=root
 Group=root
 ```
 
-and modify the `/path/to/zzblog` to the abs path of the zzblog, and the abs path of the config.yml
+修改`/path/to/zzblog`成zzblog的绝对路径, 修改`/path/to/config.yml`成config.yml的绝对路径
 
 ```bash
 $ mv zzblog.service /etc/systemd/system/
 ```
 
-#### REQUIREMENT
+#### 需求
 
 * golang
-* **rendertron** for the server renderer to help search engine to spide the content
+* **rendertron** 一个服务端程序的工具去帮助爬虫发现该网站的内容
 
-## HTTP API
+## HTTP接口
 
-### get the blogs
+### 获取博客列表
+
 ```
 GET /blogs
 ```
 
-#### request
+#### 请求
 ```
 page={page}                 # optional
 page_size={page_size}       # optional
@@ -104,7 +106,7 @@ tag={tag}                   # optional
 cate={cate}                 # optional
 ```
 
-#### response
+#### 返回
 ```
 Content-Type: application/json
 {
@@ -123,12 +125,13 @@ Content-Type: application/json
 }
 ```
 
-### blog detail
+### 博客详情
+
 ```
 GET /blogs/:url_id
 ```
 
-#### response
+#### 返回
 ```
 Content-Type: application/json
 {
@@ -145,37 +148,37 @@ Content-Type: application/json
 }
 ```
 
-### get categories
+### 获取分类
+
 ```
 GET /cates
 ```
 
-#### requset
-
-#### response
+#### 返回
 ```
 Content-Type: application/json
 
 []string
 ```
 
-### get tags
+### 获取标签
+
 ```
 GET /tags
 ```
 
-#### response
+#### 返回
 ```
 Content-Type: application/json
 
 []string
 ```
 
-## BLOG STRUCTURE
+## 博客结构
 
-### DIR STRUCTURE
+### 目录结构
 
-the dir structure is below
+完整的目录结构如下
 
 ```
 root --
@@ -189,11 +192,11 @@ root --
         
 ```
 
-you can create sub direction in blogs and images, the init program will search all the `/root/blogs` for blogs
+你可以在`/root/blogs`和`/root/images`创建子目录,初始化时程序会遍历`/root/blogs`去发现文章
 
-### EXTENDED MARKDOWN
+### 拓展的MARKDOWN
 
-I expended the markdown through add a head, all head example below
+我给markdown添加了个头，来拓展markdown方便定义每篇博客的基础信息
 
 ```markdown
 
