@@ -17,6 +17,7 @@ const (
 	sVal
 	sHeaderEnd
 	sHeaderEndLeading
+	sEnd
 
 	tTitle    = "title"
 	tUrlid    = "urlid"
@@ -141,7 +142,9 @@ func (p *BlogParser) Parse(r io.Reader) *ParsedBlog {
 		case sHeaderEndLeading:
 			p.inHeaderLeading(blog)
 		case sHeaderEnd:
-			p.inHeaderEnd(blog)
+			p.inHeaderEnd(blog, r)
+		case sEnd:
+			return blog
 		}
 	}
 
@@ -286,12 +289,19 @@ func (p *BlogParser) inHeaderLeading(blog *ParsedBlog) {
 	p.toText(blog)
 }
 
-func (p *BlogParser) inHeaderEnd(blog *ParsedBlog) {
+func (p *BlogParser) inHeaderEnd(blog *ParsedBlog, r io.Reader) {
 	char := p.buf[0]
 	p.cache = append(p.cache, char)
 	if char == '+' {
-		p.state = sText
-		p.cache = []byte{}
+		buf := make([]byte, 2048)
+		for {
+			if _, e := r.Read(buf); e != nil {
+				p.state = sEnd
+				p.cache = []byte{}
+				return
+			}
+			blog.Content = append(blog.Content, buf...)
+		}
 	} else if char != '-' {
 		p.toText(blog)
 	}
