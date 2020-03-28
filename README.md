@@ -3,40 +3,97 @@
 
 urlid: zzblog-readme
 
-title: zzblog设计
+title:ablout zzblog
 
 tags: #zzblog, #design
 
 category: design
 
-overview: zzblog是一个个人小型博客系统，包含一个从拓展的markdown中解析元数据的工具，一个博客索引工具。
+overview: zzblog is a personal blog system, it parse a direction to find images, blog markdowns for the web content.
 
 +---+
 
 
-## 介绍
+## INTRO
 
-因为自身需要，所以想要创建一个博客后端，注意，是后端。目前市面上存在的博客系统是前后端没有分离的产品，那么，当有前端做单页应用需求时则很难满足。基于此。该项目尽提供HTTP API，且这些API仅获取数据。create数据通过提供命令行功能完成。这样，我们可以简化认证流程。
+I have wanted a blog system that on my taste for a long time, I've designed and implemented it as I had a long rest time after quit the last job. it included a parser to parse the blog head from a extended markdown syntax. gathering the categories, tags from the blog head to organize the contents.
 
-## 命令行工具
+the product sample on [ironwell young's home page](https://iiiboo.cn), if the traffic bad, please be patient because of the host in the china mainland. but I will move it to the out side of the wall ofter I get a credit card. get the code on [github](https://github.com/yang-zzong/zzblog)
 
-1. run
-2. post         
-3. image
+## INSTALL
+
+### FRONTEND
+
+edit `frontend/src/model.js`
+
+```js
+const model = {
+    server: 'http://localhost:8080', // edit this line to `server: ''`
+};
+```
+
+then
+
+```bash
+$ cd frontend && npm run build
+```
+
+#### REQUIREMENT
+
+* npm
+* react
+
+### compile and install backend
+
+```bash
+$ go get ./... && cd main && go build && mv main /path/to/bin/
+```
+U can modify the systemd to manage the process through edit a service file follow below.
+
+```bash
+$ vim zzblog.service
+```
+
+copy below content to the file
+
+```
+[Unit]
+Description=zz Blog
+Wants=network.target
+
+[Service]
+ExecStart=/path/to/zzblog start -c /path/to/config.yml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+ProtectSystem=true
+User=root
+Group=root
+```
+
+and modify the `/path/to/zzblog` to the abs path of the zzblog, and the abs path of the config.yml
+
+```bash
+$ mv zzblog.service /etc/systemd/system/
+```
+
+#### REQUIREMENT
+
+* golang
+* **rendertron** for the server renderer to help search engine to spide the content
 
 ## HTTP API
 
-### 获取博客列表
+### get the blogs
 ```
 GET /blogs
 ```
 
 #### request
 ```
-page={page}                 # 可选，第几页, 默认1
-page_size={page_size}       # 可选，页大小，默认10
-tag={tag}                   # 可选，包含标签
-cate={cate}                 # 可选，分类
+page={page}                 # optional
+page_size={page_size}       # optional
+tag={tag}                   # optional
+cate={cate}                 # optional
 ```
 
 #### response
@@ -48,18 +105,17 @@ Content-Type: application/json
         url_id: string,         
         title: string,
         overview: string,
-        images: []string,
-        viewes: int,
-        comments: int,
-        thumb_ups: int,
-        thumb_downs: int,
+        tags: string[],
+        cate: string,
+        lang: string,
+        image: string,
         created_at: time_string,
         updated_at: time_string,
     }]
 }
 ```
 
-### 获取博客详情
+### blog detail
 ```
 GET /blogs/:url_id
 ```
@@ -71,24 +127,22 @@ Content-Type: application/json
     url_id: string,         
     title: string,
     overview: string,
-    images: []string,
-    viewes: int,
-    comments: int,
-    thumb_ups: int,
-    thumb_downs: int,
+    image: string,
+    tags: string[],
+    cate: string,
+    lang: string,
     created_at: time_string,
     updated_at: time_string,
     content: markdown_string
 }
 ```
 
-### 获取分类
+### get categories
 ```
 GET /cates
 ```
 
 #### requset
-会下发所有分类，因为分类数量不大
 
 #### response
 ```
@@ -97,7 +151,7 @@ Content-Type: application/json
 []string
 ```
 
-### 获取所有标签
+### get tags
 ```
 GET /tags
 ```
@@ -109,50 +163,44 @@ Content-Type: application/json
 []string
 ```
 
-## 命令行接口
+## BLOG STRUCTURE
 
-### 运行HTTP服务器
-```
-run [path-prefix=/api] [doc-root=/var/www/zzblog] [with-seo] [with-spa]
-```
+### DIR STRUCTURE
 
-1. path-prefix 该选项指明是否需要在HTTP API之前加路径。比如 path-prefix=/api，那么请求文章详情的接口就编程了```GET /api/blogs/:url_id```, 该选项的用途主要是在有doc-root且是spa的情况下区分接口和前端页面
-2. doc-root 静态页面的根目录。入口文件未 index.html
-3. with-seo 启动seo优化的功能，当发布文章时，会同时生成静态的html文件。当检测到spider请求时，会直接将静态文件发给它
-4. with-spa 是否以单页应用方式运行服务器
-
-### 创建文章
+the dir structure is below
 
 ```
-post [with-seo] file.md
-```
-#### 文章格式
-
-```
-<title>title</title>
-<urlid>if-it-is-friday</urlid>
-<tags>[tag1][tag2][tag3]</tags>
-<cate>category</cate>
-<overview>overview</overview>
-
-剩下的均为content
+root --
+     |--- blogs
+     |     | ----- about.md
+     |     | ----- about-zh-cn.md
+     |
+     \--- images
+           | ----- about.gif
+           | ----- logo.jpg
+        
 ```
 
-例子
-```
-<title>如果今天是星期五</title>
-<urlid>if-it-is-friday</urilid>
-<tags>[星期五]</tags>
-<cate>日常</cate>
-<overview>今天是星期五，明天要放周末了，怎么玩呢</overview>
+you can create sub direction in blogs and images, the init program will search all the `/root/blogs` for blogs
 
-## 简介
-今天是星期五了哟
-## 第一步
-## 第二步
-```
+### EXTENDED MARKDOWN
 
-### 上传图片
-```
-image
+I expended the markdown through add a head, all head example below
+
+```markdown
+
++---+
+title: hello world
+urlid: hello-world
+overview: a hello world sample of extended markdown
+tags: #hello world, #extended markdown
+cate: nornal cate
+image: /api/hello-world.jpg
+lang: en
++---+
+## title one
+content
+## title two
+content
+
 ```
