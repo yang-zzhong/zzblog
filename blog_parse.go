@@ -295,12 +295,14 @@ func (p *BlogParser) inHeaderEnd(blog *ParsedBlog, r io.Reader) {
 	if char == '+' {
 		buf := make([]byte, 2048)
 		for {
-			if _, e := r.Read(buf); e != nil {
+			var num int
+			var e error
+			if num, e = r.Read(buf); e != nil {
 				p.state = sEnd
 				p.cache = []byte{}
 				return
 			}
-			blog.Content = append(blog.Content, buf...)
+			blog.Content = append(blog.Content, buf[:num]...)
 		}
 	} else if char != '-' {
 		p.toText(blog)
