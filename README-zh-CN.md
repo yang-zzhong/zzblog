@@ -22,7 +22,7 @@ lang: zh-CN
 * react实现的单页应用前端
 * 依赖rendertron的服务端呈现帮助爬虫发现该网站内容
 
-我已经将这些代码用于我的个人博客 [薛定谔的猫](https://iiiboo.cn), 如果网络很差，请保持耐心，该服务器在中国大陆. 当我拿到属于我的信用卡之后我会将这个服务迁移到墙外. 从[github](https://github.com/yang-zzong/zzblog)获取其源代码
+我已经将这些代码用于我的个人博客 [薛定谔的猫](https://iiiboo.cn), 如果网络很差，请保持耐心，该服务器在中国大陆. 当我拿到属于我的信用卡之后我会将这个服务迁移到墙外. 从[github](https://github.com/yang-zzhong/zzblog)获取其源代码
 
 ## 安装 
 
