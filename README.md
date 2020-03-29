@@ -20,7 +20,7 @@ lang: en
 
 I have wanted a blog system that on my taste for a long time, I've designed and implemented it as I had a long rest time after quit the last job. it included a parser to parse the blog head from a extended markdown syntax. gathering the categories, tags from the blog head to organize the contents.
 
-the product sample on [ironwell young's home page](https://iiiboo.cn), if the traffic bad, please be patient because of the host in the china mainland. but I will move it to the out side of the wall ofter I get a credit card. get the code on [github](https://github.com/yang-zzong/zzblog)
+the product sample on [ironwell young's home page](https://iiiboo.cn), if the traffic bad, please be patient because of the host in the china mainland. but I will move it to the out side of the wall ofter I get a credit card. get the code on [github](https://github.com/yang-zzhong/zzblog)
 
 ## INSTALL
 
