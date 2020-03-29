@@ -9,7 +9,7 @@ tags: #zzblog, #design
 
 category: zzblog
 
-overview: zzblog is a personal blog system, it parse a direction to find images, blog markdowns for the web content.
+overview: zzblog is a personal blog system, it parse a directory to find images, blog markdowns for the web content.
 
 lang: en
 
