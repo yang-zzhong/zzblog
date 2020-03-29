@@ -206,7 +206,7 @@ urlid: hello-world
 overview: a hello world sample of extended markdown
 tags: #hello world, #extended markdown
 cate: nornal cate
-image: /api/hello-world.jpg
+image: hello-world.jpg
 lang: en
 +---+
 ## title one
