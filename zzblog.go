@@ -2,7 +2,6 @@ package zzblog
 
 import (
 	"io"
-	"log"
 	"os"
 	"sort"
 	"time"
@@ -207,9 +206,7 @@ func (set *MBlogSet) Swap(i, j int) {
 }
 
 func (set *MBlogSet) Get() []*Blog {
-	log.Printf("before: %v\n", set.blogs)
 	sort.Sort(set)
-	log.Printf("after: %v\n", set.blogs)
 	if set.page == 0 {
 		return set.blogs
 	}

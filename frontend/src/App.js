@@ -16,6 +16,7 @@ import TranslateIcon from '@material-ui/icons/Translate';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import List from './List';
 import Blog from './Blog';
+import P404 from './P404';
 import 'boo-route';
 
 const styles = (theme => {
@@ -115,7 +116,8 @@ class App extends React.Component {
     });
     this.pages = {
       blogs: React.createRef(),
-      blog: React.createRef()
+      blog: React.createRef(),
+      p404: React.createRef()
     };
     this.header = React.createRef();
     theme.init().then(data => {
@@ -179,7 +181,6 @@ class App extends React.Component {
       this.setState({langs: langs});
       if (this.lang === undefined) {
         this.lang = localizer.guess();
-        console.log(this.lang);
         localizer.use(this.lang);
       }
       return new Promise(r => r());
@@ -228,13 +229,18 @@ class App extends React.Component {
       }
       return new Promise(r => r());
     }
-    return this.pages[pageName].current.enter(this.state.pageName).then(() => {
+    return this.pages[pageName].current.enter(this.state.pageName).then((state) => {
+        if (state.state === 404) {
+          return this.setPage('p404');
+        }
       if (this.state.pageName === pageName) {
         return this.pages[pageName].current.scrollTo();
       }
       return leave().then(goto()).then(this.pages[pageName].current.scrollTo()).then(() => {
         this.setState({pageName: pageName});
-        return this.pages[this.state.pageName].current.entryAnimation();
+        return this.pages[this.state.pageName].current.entryAnimation().then(() => {
+          return new Promise(r => r(state));
+        });
       });
     });
   }
@@ -325,6 +331,9 @@ class App extends React.Component {
             </div>
             <div className={classes.page} page="true" id="blog">
               <Blog ref={this.pages.blog} />
+            </div>
+            <div className={classes.page} page="true" id="p404">
+              <P404 ref={this.pages.p404} />
             </div>
           </main>
         </div>

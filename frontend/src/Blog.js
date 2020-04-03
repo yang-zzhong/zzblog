@@ -201,7 +201,6 @@ class Blog extends Page {
       return super.enter();
     }
     this.urlid = ctx.path_params.url_id;
-    let promises = [];
     if (!this.inited) {
       this.inited = true;
       window.addEventListener('lang-changed', e => {
@@ -213,15 +212,17 @@ class Blog extends Page {
           this.enter();
         }
       });
-      promises.push(model.userInfo().then(info => {
+      model.userInfo().then(info => {
         this.setState({user: info});
-        return new Promise(r => r());
-      }));
+      });
     }
-    promises.push(model.blog().then(blog => {
+    return model.blog().then(blog => {
       this.setState({blog: blog});
       return new Promise(r => {
         setTimeout(() => {
+          helper.updateTitle(this.state.blog.title + ' - ' + this.state.user.name + ' - ' + 'iiiboo');
+          helper.updateDescription(this.state.blog.overview);
+          helper.updateKeywords(this.state.blog.tags);
           const node = this.content.current;
           if (node) {
             node.querySelectorAll('pre code').forEach(e => {
@@ -236,15 +237,13 @@ class Blog extends Page {
           } catch(e) {
             console.error(e);
           }
-          super.enter().then(r());
+          r();
         }, 10);
       });
-    }));
-    return Promise.all(promises).then(() => {
-      helper.updateTitle(this.state.blog.title + ' - ' + this.state.user.name + ' - ' + 'iiiboo');
-      helper.updateDescription(this.state.blog.overview);
-      helper.updateKeywords(this.state.blog.tags);
-      return new Promise(r => r());
+    }, (status, msg) => {
+      return new Promise(r => r({state: status, msg: msg}));
+    }).then(state => {
+      return super.enter(state);
     });
   }
 

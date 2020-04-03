@@ -1,6 +1,8 @@
 {
   "en": {
     "__label": "English",
+    "gotohome": "go to home page",
+    "blognotfound": "Blog Not Found",
     "all": "all",
     "tag": "TAG",
     "cate": "CATEGORY",
@@ -16,6 +18,8 @@
   },
   "zh-CN": {
     "__label": "简体中文",
+    "gotohome": "访问主页",
+    "blognotfound": "文章未找到",
     "all": "全部",
     "tag": "标签",
     "cate": "分类",

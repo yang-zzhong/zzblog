@@ -1,6 +1,7 @@
 port: 8080
 allow_cors: true
 doc_root: /Users/yangzhong/dev/go/src/zzblog/frontend/build
+log_path: /tmp/log/
 passport: yangZHONG1101
 domain: https://iiiboo.cn
 root: /Users/yangzhong/dev/blog/

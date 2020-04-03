@@ -25,8 +25,9 @@ export default class Page extends React.Component {
     window.addEventListener('lang-changed', e => this.setState({}));
   }
 
-  enter() {
-    return new Promise(r => r());
+  enter(state) {
+    state = state || {state: 200};
+    return new Promise(r => r(state));
   }
 
   leave() {
