@@ -1,0 +1,17 @@
+github.com/go-yaml/yaml v2.1.0+incompatible h1:RYi2hDdss1u4YE7GwixGzWwVo47T8UQwnTLB6vQiq+o=
+github.com/go-yaml/yaml v2.1.0+incompatible/go.mod h1:w2MrLa16VYP0jy6N7M5kHaCkaLENm+P+Tv+MfurjSw0=
+github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6Oo2LfFZAehjjQMERAvZLEDnQ=
+github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
+github.com/yang-zzhong/go-httprouter v0.4.0 h1:fpiox1yXItnK6QU0jFC8V245YUCWixlDMaA5dJl/Hwg=
+github.com/yang-zzhong/go-httprouter v0.4.0/go.mod h1:At74lXK9dvXnLfdbI93YAmvWF0mGF9smy0TrJ2ftYiA=
+github.com/yang-zzhong/go-restfulpath v0.2.0 h1:F0zzoiMh6dg1ALTcQsmqLw4MZ84tUHgypX5GOiKZt5s=
+github.com/yang-zzhong/go-restfulpath v0.2.0/go.mod h1:H3VJkctgN2SCYmtHsxl5rg4dbewHrcpHFQEOXK9Bz0o=
+github.com/yang-zzhong/logf v0.0.0-20200908010425-fb66eb03e49e h1:s43JaTdqXa1I3Chwqw9YRYNarV16t46rxxkYcidf+tM=
+github.com/yang-zzhong/logf v0.0.0-20200908010425-fb66eb03e49e/go.mod h1:6Eij+usr6RvPYra8XF1Z6aCG3/5y79W8yDm8IB2Ur6E=
+github.com/yang-zzhong/md v0.1.0 h1:Fi0fkH3FSCUeAnKRP+RGSKriKNEIDLQg6k1PNdB5jYg=
+github.com/yang-zzhong/md v0.1.0/go.mod h1:6a27QpjTPZP8IfunHm2q6Lewbgr+ZzCsuygr4jDRDiw=
+golang.org/x/image v0.0.0-20200801110659-972c09e46d76 h1:U7GPaoQyQmX+CBRWXKrvRzWTbd+slqeSh8uARsIyhAw=
+golang.org/x/image v0.0.0-20200801110659-972c09e46d76/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
+golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
+gopkg.in/djherbis/times.v1 v1.2.0 h1:UCvDKl1L/fmBygl2Y7hubXCnY7t4Yj46ZrBFNUipFbM=
+gopkg.in/djherbis/times.v1 v1.2.0/go.mod h1:AQlg6unIsrsCEdQYhTzERy542dz6SFdQFZFv6mUY0P8=

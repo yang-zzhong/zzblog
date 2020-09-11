@@ -1,7 +1,7 @@
 package main
 
 import (
-	"zzblog/cmd"
+	"github.com/yang-zzhong/zzblog/cmd"
 )
 
 func main() {

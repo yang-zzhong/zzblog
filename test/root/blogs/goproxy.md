@@ -1,5 +1,5 @@
 
-+------------+
+<!-- +
 
 urlid: goproxy-intro
 
@@ -15,7 +15,7 @@ image: https://github.com/snail007/proxy_admin_free/raw/master/res/images/socks5
 
 lang: en
 
-+------------+
++ -->
 
 ## GOPROXY Introduction
 <img src="https://github.com/snail007/goproxy/blob/master/doc/images/logo.jpg?raw=true" width="200" height="auto"/>

@@ -3,7 +3,7 @@ package zzblog
 import (
 	"encoding/json"
 	"errors"
-	"gopkg.in/djherbis/times.v1"
+	"github.com/yang-zzhong/md"
 	"io"
 	"io/ioutil"
 	"log"
@@ -173,18 +173,6 @@ func (zz *FileZzblog) addBlog(file string) error {
 		return e
 	}
 	blog.SetFile(file)
-	info, e := f.Stat()
-	if e != nil {
-		return e
-	}
-	blog.UpdatedAt = info.ModTime()
-	t, err := times.Stat(file)
-	if err != nil {
-		return err
-	}
-	if t.HasBirthTime() {
-		blog.CreatedAt = t.BirthTime()
-	}
 	return nil
 }
 
@@ -204,19 +192,21 @@ func (zz *FileZzblog) Get(id string, lang string) *Blog {
 }
 
 func (zz *FileZzblog) AddByReader(r io.Reader) (blog *Blog, err error) {
-	var p *ParsedBlog
-	if p = ParseBlog(r); p == nil {
+	var head md.MdHead
+	if head, err = md.ParseHead(r); err != nil {
 		err = errors.New("read content error")
 		return
 	}
 	blog = new(Blog)
-	blog.URLID = p.URLID
-	blog.Title = p.Title
-	blog.Tags = p.Tags
-	blog.Category = p.Category
-	blog.Overview = p.Overview
-	blog.Lang = p.Lang
-	blog.Image = p.Image
+	blog.URLID = head.Urlid
+	blog.Title = head.Title
+	blog.Tags = head.Tags
+	blog.Category = head.Cate
+	blog.Overview = head.Overview
+	blog.Lang = head.Lang
+	blog.Image = head.Image
+	blog.PublishedAt = head.PublishedAt
+	blog.UpdatedAt = head.UpdatedAt
 	err = zz.Add(blog)
 	return
 }

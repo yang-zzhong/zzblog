@@ -1,5 +1,5 @@
 
-+---+
+<!-- +
 
 urlid: zzblog-readme
 
@@ -13,8 +13,7 @@ overview: zzblog is a personal blog system, it parse a directory to find images,
 
 lang: en
 
-+---+
-
++ -->
 
 ## INTRO
 

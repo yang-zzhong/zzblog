@@ -1,7 +1,7 @@
 package zzblog
 
 import (
-	httprouter "github.com/yang-zzhong/go-httprouter"
+	hr "github.com/yang-zzhong/go-httprouter"
 )
 
 type Auth struct {
@@ -12,14 +12,14 @@ func NewAuth(passport string) *Auth {
 	return &Auth{passport}
 }
 
-func (auth *Auth) Before(w *httprouter.ResponseWriter, req *httprouter.Request) bool {
+func (auth *Auth) Before(w *hr.Response, req *hr.Request) bool {
 	if req.Request.Header.Get("passport") == auth.passport {
 		return true
 	}
-	w.WithStatusCode(403)
+	w.WithStatus(403)
 	return false
 }
 
-func (auth *Auth) After(_ *httprouter.ResponseWriter, _ *httprouter.Request) bool {
+func (auth *Auth) After(_ *hr.Response, _ *hr.Request) bool {
 	return true
 }

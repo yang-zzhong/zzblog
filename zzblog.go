@@ -2,23 +2,23 @@ package zzblog
 
 import (
 	"io"
-	"os"
+	"io/ioutil"
 	"sort"
 	"time"
 )
 
 // Blog a blog item
 type Blog struct {
-	URLID     string    `json:"url_id"`
-	Title     string    `json:"title"`
-	Tags      []string  `json:"tags"`
-	Category  string    `json:"category"`
-	Overview  string    `json:"overview"`
-	Lang      string    `json:"lang"`
-	Image     string    `json:"image"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"upadted_at"`
-	file      string
+	URLID       string    `json:"url_id"`
+	Title       string    `json:"title"`
+	Tags        []string  `json:"tags"`
+	Category    string    `json:"category"`
+	Overview    string    `json:"overview"`
+	Lang        string    `json:"lang"`
+	Image       string    `json:"image"`
+	PublishedAt time.Time `json:"published_at"`
+	UpdatedAt   time.Time `json:"upadted_at"`
+	file        string
 }
 
 type LangGroup struct {
@@ -125,14 +125,8 @@ func (b *Blog) SetFile(file string) {
 	b.file = file
 }
 
-func (b *Blog) Detail() (blog *ParsedBlog, err error) {
-	file, e := os.Open(b.file)
-	if e != nil {
-		e = err
-		return
-	}
-	defer file.Close()
-	blog = ParseBlog(file)
+func (b *Blog) Content() (content []byte, err error) {
+	content, err = ioutil.ReadFile(b.file)
 	return
 }
 

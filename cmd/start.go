@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/yang-zzhong/logf"
+	"github.com/yang-zzhong/zzblog"
 	"os"
-	"zzblog"
-	"zzblog/log"
 )
 
 var rootCmd = &cobra.Command{
@@ -26,7 +26,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			zzblog.InitConfig(config)
 			c := zzblog.GetConfig()
-			log.Path = c.LogPath
+			logf.Path = c.LogPath
 			h := zzblog.NewHttp(c.Root, c.DocRoot)
 			panic(h.Start(":" + c.Port))
 		},

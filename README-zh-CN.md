@@ -1,4 +1,4 @@
-+---+
+<!-- +
 
 urlid: zzblog-readme
 
@@ -11,7 +11,7 @@ category: zzblog
 overview: zzblog是一个个人博客系统，包含一个拓展的markdown解释器，它能解析一个markdown的头部和内容，然后交给web服务器展示起内容。jj
 
 lang: zh-CN
-+---+
++ -->
 
 
 ## 介绍
