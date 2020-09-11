@@ -6,6 +6,7 @@ import (
 	hr "github.com/yang-zzhong/go-httprouter"
 	"github.com/yang-zzhong/logf"
 	"html"
+	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -21,12 +22,15 @@ type ZzblogHttp struct {
 }
 
 func (r *zzblogRouter) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	r.Router.HandleRequest(w, req)
+	res := r.Router.HandleRequest(w, req)
+	res.Flush(req)
 	logf.Printf("http: %s\t%s\t%v\t%s", req.Method, req.URL.Path, req.Proto, req.RemoteAddr)
 }
 
 func NewHttp(root string, docroot string) *ZzblogHttp {
 	zz := new(ZzblogHttp)
+	log.Printf("doc root: %s\n", docroot)
+	log.Printf("blog root: %s\n", root)
 	zz.initRouter(docroot)
 	zz.zz = NewFileZzblog(root)
 	if err := zz.zz.Init(); err != nil {
@@ -247,5 +251,6 @@ func (h *ZzblogHttp) Start(addr string) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("listen on %s\n", addr)
 	return http.Serve(l, h.router)
 }

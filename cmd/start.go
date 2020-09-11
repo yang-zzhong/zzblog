@@ -26,7 +26,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			zzblog.InitConfig(config)
 			c := zzblog.GetConfig()
-			logf.Path = c.LogPath
+			logf.SetPath(c.LogPath)
 			h := zzblog.NewHttp(c.Root, c.DocRoot)
 			panic(h.Start(":" + c.Port))
 		},

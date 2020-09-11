@@ -196,7 +196,7 @@ I expended the markdown through add a head, all head example below
 
 ```markdown
 
-+---+
+<!-- +
 title: hello world
 urlid: hello-world
 overview: a hello world sample of extended markdown
@@ -204,7 +204,8 @@ tags: #hello world, #extended markdown
 cate: nornal cate
 image: hello-world.jpg
 lang: en
-+---+
++ -->
+
 ## title one
 content
 ## title two
