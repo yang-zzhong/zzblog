@@ -88,10 +88,10 @@ func (h *ZzblogHttp) registerGetBlogs() {
 		pageSize := 10
 		tag := r.FormValue("tag")
 		cate := r.FormValue("cate")
-		if p, e := r.FormInt("page"); e != nil {
+		if p, e := r.FormInt("page"); e == nil {
 			page = int(p)
 		}
-		if p, e := r.FormInt("page_size"); e != nil {
+		if p, e := r.FormInt("page_size"); e == nil {
 			pageSize = int(p)
 		}
 		blogs := h.zz.Filter(func(group *LangGroup) *Blog {

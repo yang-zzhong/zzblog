@@ -101,40 +101,44 @@ class List extends Page {
         }
       });
     }
-    if (!this.tagAndCateReady) {
-      Promise.all([
-        this.tagAndCate(),
-        model.userInfo().then(info => {
-          this.setState({user: info});
-          return new Promise(r => r());
-        })
-      ]).then(() => {
-        const info = this.state.user;
-        helper.updateTitle(info.name + ' - iiiboo');
-        let desc = [info.name + '\'s home page. ', 'bio: ' + info.bio];
-        for(let i =0; i < info.contacts.length; ++i) {
-          desc.push(info.contacts[i].label + ': ' + info.contacts[i].value);
-        }
-        helper.updateDescription(desc.join('\n'));
-        let keywords = ['iiiboo', info.name];
-        for(let i = 0; i < this.state.cates.length; ++i) {
-          keywords.push(this.state.cates[i]);
-        }
-        helper.updateKeywords(keywords);
+    if (this.tagAndCateReady) {
+      return this.loadBlogs(params, old).then(r => {
+        return super.enter();
       });
-      this.tagAndCateReady = true;
     }
+    this.tagAndCateReady = true;
+    return Promise.all([
+      this.tagAndCate(),
+      model.userInfo().then(info => {
+        this.setState({user: info});
+        return new Promise(r => r());
+      }),
+      this.loadBlogs(params, old)
+    ]).then(() => {
+      const info = this.state.user;
+      helper.updateTitle(info.name + ' - Home Page');
+      let desc = [info.name + '\'s home page. ', 'bio: ' + info.bio];
+      for(let i =0; i < info.contacts.length; ++i) {
+        desc.push(info.contacts[i].label + ': ' + info.contacts[i].value);
+      }
+      helper.updateDescription(desc.join('\n'));
+      let keywords = ['iiiboo', info.name];
+      for(let i = 0; i < this.state.cates.length; ++i) {
+        keywords.push(this.state.cates[i]);
+      }
+      helper.updateKeywords(keywords);
+      return super.enter(old);
+    });
+  }
+
+  loadBlogs(params, old) {
     this.cate = decodeURIComponent(params.cate ? params.cate : 'all');
     this.tag = decodeURIComponent(params.tag);
     this.page = params.page;
     this.updateSelected();
     this.setState({loading: true, blogs: []});
     return model.queryBlogs(params).then(blogs => {
-      this.setState({
-        blogs: blogs || [],
-        loading: false,
-        noMore: blogs.length < 10
-      });
+      this.afterLoadedBlogs(blogs);
       if (old === 'blogs') {
         this.anis.grid.current.style.visibility = 'hidden';
         setTimeout(() => {
@@ -145,9 +149,9 @@ class List extends Page {
           if (t) {
             animation.play(t);
           }
-        }, 0);
+        }, 10);
       }
-      return super.enter();
+      return new Promise(r => r());
     });
   }
 
@@ -297,14 +301,17 @@ class List extends Page {
 
   loadMore() {
     this.setState({loading: true});
-    model.nextBlogs().then(blogs => {
-      const b = this.state.blogs.length;
-      blogs = this.state.blogs.concat(blogs || []);
-      this.setState({
-        noMore: blogs.length < 10,
-        blogs: blogs,
-        loading: false
-      });
+    model.nextBlogs().then(blogs => this.afterLoadedBlogs(blogs, true));
+  }
+
+  afterLoadedBlogs(blogs, scroll) {
+    const b = this.state.blogs.length;
+    this.setState({
+      noMore: blogs.length < 10,
+      blogs: this.state.blogs.concat(blogs || []),
+      loading: false
+    });
+    if (scroll) {
       const items = this.pc.current.querySelectorAll('[item=true]');
       const scroll = new SweetScroll();
       if (items.length > b) {
@@ -323,7 +330,7 @@ class List extends Page {
           return animation.play(t).then(super.enter());
         }
       }, 300);
-    });
+    }
   }
 
   moreButton() {
