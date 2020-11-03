@@ -120,6 +120,7 @@ func (sr *ServerRenderer) Render(w *hr.Response, req *http.Request) bool {
 			w.WithHeader(key, val[0])
 		}
 	}
+	w.WithHeader("Content-Type", "text/html")
 	write(res.Body, w)
 
 	return true
