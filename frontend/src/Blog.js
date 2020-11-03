@@ -220,7 +220,7 @@ class Blog extends Page {
       this.setState({blog: blog});
       return new Promise(r => {
         setTimeout(() => {
-          helper.updateTitle(this.state.blog.title + ' - ' + this.state.user.name + ' - ' + 'iiiboo');
+          helper.updateTitle(this.state.blog.title + ' - ' + this.state.user.name);
           helper.updateDescription(this.state.blog.overview);
           helper.updateKeywords(this.state.blog.tags);
           const node = this.content.current;

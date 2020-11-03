@@ -191,18 +191,43 @@ class List extends Page {
     return false;
   }
 
-  entryAnimation() {
+  aniElems() {
     const node = this.anis.user.current.root();
     const anis = [ animation.scale_in([node]) ];
-    const t = this.blogsInAni();
-    if (t) {
-      anis.push(t);
+    const blogs = this.pc.current.querySelectorAll('[item=true]');
+    blogs.forEach((item) => {
+      anis.push(item);
+    });
+    return anis;
+  }
+
+  hiddenElems(elems, hidden) {
+    for(let i in elems) {
+      if (elems[i].style) {
+        elems[i].style.visibility = hidden ? 'hidden' : 'visible';
+      }
     }
-    setTimeout(() => {
-      this.anis.user.current.disableSticky(false);
-      this.anis.user.current.updateSticky();
-    }, 500);
-    return this.playAnimation(anis);
+  }
+
+  entryAnimation() {
+    this.hiddenElems(this.aniElems(), true);
+    return new Promise(r => {
+      setTimeout(() => {
+        const node = this.anis.user.current.root();
+        const anis = [ animation.scale_in([node]) ];
+        const t = this.blogsInAni();
+        if (t) {
+          anis.push(t);
+        }
+        this.anis.user.current.disableSticky(true);
+        setTimeout(() => {
+          this.anis.user.current.disableSticky(false);
+          this.anis.user.current.updateSticky();
+        }, 500);
+        r(anis);
+        this.hiddenElems(this.aniElems(), false);
+      }, 0);
+    }).then(anis => this.playAnimation(anis));
   }
 
   // exitAnimation() {
@@ -317,14 +342,10 @@ class List extends Page {
       if (items.length > b) {
         scroll.toElement(items[b]);
       }
-      for(let i = b; i < items.length; ++i) {
-        items[i].style.visibility = 'hidden';
-      }
+      this.hiddenElems(items, true);
       setTimeout(() => {
         const items = this.pc.current.querySelectorAll('[item=true]');
-        for(let i = b; i < items.length; ++i) {
-          items[i].style.visibility = 'visible';
-        }
+        this.hiddenElems(items, false);
         const t = this.blogsInAni(b);
         if (t) {
           return animation.play(t).then(super.enter());
