@@ -1,33 +1,163 @@
-
 <!-- +
-
 urlid: zzblog-readme
-
 title:ablout zzblog
-
 tags: #zzblog, #design
-
 category: zzblog
-
-overview: zzblog is a personal blog system, it parse a directory to find images, blog markdowns for the web content.
-
+overview: zzblog is a personal blog system, it parse a direction to find images, blog markdowns for the web content.
 lang: en
-
+created_at: 2020-11-05 21:23:00
+updated_at: 2020-11-05 21:23:00
 + -->
 
 ## INTRO
 
-I have wanted a blog system that on my taste for a long time, I've designed and implemented it as I had a long rest time after quit the last job. it included a parser to parse the blog head from a extended markdown syntax. gathering the categories, tags from the blog head to organize the contents.
+I have wanted a blog system on my taste for a long time, I've designed and implemented it as I had a long rest time after quiting the last job. it included a parser to parse the blog head from a extended markdown syntax. gathering the categories, tags from the blog head to organize the contents.
 
-I use it to build my personal blog addressed on [ironwell young's home page](https://iiiboo.cn), if the traffic is heavy, please be patient because of the host in the china mainland. but I will move it to the out side of the wall after I get a credit card. get the code on [github](https://github.com/yang-zzhong/zzblog)
+the product sample on [ironwell young](https://ironwell-young.me),  get the code on [yang-zzhong/zzblog](https://github.com/yang-zzhong/zzblog)
+
+## extended markdown syntax
+
+Markdown is more readable and more writable than html. but it lacks a head to describe the content of the file. So I extended it thru adding a head to contain the meta information of the content. the format likes below.
+
+```
+<!-- +
+urlid: zzblog-readme
+title:ablout zzblog
+tags: #zzblog, #design
+category: zzblog
+overview: zzblog is a personal blog system, it parse a direction to find images, blog markdowns for the web content.
+lang: en
+created_at: 2020-11-05 21:23:00
+updated_at: 2020-11-05 21:23:00
++ -->
+
+```
+
+You can find the parser at [yang-zzhong/md](https://github.com/yang-zzhong/md)。Maybe you notice that I wrap the meta info in `<!-- + + -->`, yes, that includes a comment syntax of html and then the head will auto hide when show the content as a html file. your markdown file content just likes below.
+
+```
+<!-- +
+urlid: zzblog-readme
+title:ablout zzblog
+tags: #zzblog, #design
+category: zzblog
+overview: zzblog is a personal blog system, it parse a direction to find images, blog markdowns for the web content.
+lang: en
+created_at: 2020-11-05 21:23:00
+updated_at: 2020-11-05 21:23:00
++ -->
+
+## title 1
+
+content 1
+
+## title 2
+
+content 2
+
+```
+
+## DIR STRUCTURE
+
+your blog directer structure may like below
+
+```
+
+root --
+     |--- blogs
+     |     | ----- about.md
+     |     | ----- about-zh-cn.md
+     |
+     \--- images
+           | ----- about.gif
+           | ----- logo.jpg
+        
+```
+
+the `root/blogs` dir contains the blog markdown file which describe before. `root/images` dir contains the images that blogs used. blog can use the following method to access the image in the content of the blog
+
+```
+
+![logo](/api/images/logo.jpg)
+
+```
 
 ## INSTALL
 
-get code from github
+I use `rendertron` to implement the server renderer for search engine. so learn how to use it. you could find some useful information from [GoogleChrome/rendertron](https://github.com/GoogleChrome/rendertron)
+
+I assume you will put everything you need in dir `/production`. follow following steps to install zzblog service.
+
+### GET THE CODE
 
 ```
-$ git clone https://github.com/yang-zzhong/zzblog && cd zzblog
+$ cd /producton && git clone https://github.com/yang-zzhong/zzblog
 ```
+
+### COMPILE SERVER PROGRAM
+
+```
+$ cd zzblog/main/ && go build && mv main ../../zzblog && cd ../.. && chmod 744 zzblog
+```
+
+### CONFIG
+```
+$ cp zzblog/config.yml . && vim config.yml
+```
+
+copy the following code to the `config.yml` file
+
+```
+port: 8080
+allow_cors: false
+doc_root: /production/frontend/
+log_path: /production/log/
+domain: https://your-domain
+root: /production/blog/
+render_cache_dir: /tmp/
+renderer: http://127.0.0.1:3000
+bots:
+   - Googlebot
+   - Baiduspider
+   - Slurp
+   - Yahoo
+   - iaskspider
+   - Sogou
+   - YodaoBot
+   - msnbot
+   - 360Spider
+```
+
+### USE SYSTEMD
+
+```
+$ touch zzblog.service
+```
+
+then copy the following content to zzblog.service
+
+```
+[Unit]
+Description=zz Blog
+Wants=network.target
+
+[Service]
+ExecStart=/production/zzblog start -c /production/config.yml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+ProtectSystem=true
+User=root
+Group=root
+
+```
+
+let's use the systemctl to manage the zzblog servie
+
+```
+$ systemctl start zzblog
+```
+
+if you don't know how to use systemd, please google it.
 
 ### FRONTEND
 
@@ -42,51 +172,53 @@ const model = {
 then
 
 ```bash
-$ cd frontend && npm run build
+$ cd zzblog/frontend/ && npm run-script build && cp -rf build/ ../../frontend
 ```
 
-#### REQUIREMENT
+### RENDERTRON
 
-* npm
-* react
+please read [GoogleChrome/rendertron](https://github.com/GoogleChrome/rendertron). after instalation, edit the config file, put your rendertron url to renderer line.
 
-### compile and install backend
+### ENABLE HTTPS
 
-```bash
-$ go get ./... && cd main && go build && mv main /path/to/bin/
-```
-U can modify the systemd to manage the process through edit a service file follow below.
-
-```bash
-$ vim zzblog.service
-```
-
-copy below content to the file
+Enable https thru `nginx`, config the `nginx` like below
 
 ```
-[Unit]
-Description=zz Blog
-Wants=network.target
 
-[Service]
-ExecStart=/path/to/zzblog start -c /path/to/config.yml
-ExecReload=/bin/kill -HUP $MAINPID
-Restart=on-failure
-ProtectSystem=true
-User=root
-Group=root
+server {
+
+    listen 443 ssl;
+    server_name your-domain;
+
+    ssl_certificate     /path/to/fullchain.pem;
+    ssl_certificate_key /path/to/privkey.pem;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
+    access_log /path/to/access.log;
+    error_log /path/to/error.log;
+
+    # enable gzip
+    gzip on;
+    # gzip_types text/plain application/xml application/x-javascript font/woff image/*;
+    gzip_types *;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+    }
+}
+
+# redirect http to https
+
+server {
+    listen 80 default_server;
+
+    server_name ironwell-young.me;
+
+    return 301 https://$host$request_uri;
+}
+
 ```
-
-and modify the `/path/to/zzblog` to the abs path of the zzblog, and the abs path of the config.yml
-
-```bash
-$ mv zzblog.service /etc/systemd/system/
-```
-
-#### REQUIREMENT
-
-* golang
-* **rendertron** for the server renderer to help search engine to spide the content
 
 ## HTTP API
 
@@ -168,47 +300,4 @@ GET /tags
 Content-Type: application/json
 
 []string
-```
-
-## BLOG STRUCTURE
-
-### DIR STRUCTURE
-
-the dir structure is below
-
-```
-root --
-     |--- blogs
-     |     | ----- about.md
-     |     | ----- about-zh-cn.md
-     |
-     \--- images
-           | ----- about.gif
-           | ----- logo.jpg
-        
-```
-
-you can create sub direction in blogs and images, the init program will search all the `/root/blogs` for blogs
-
-### EXTENDED MARKDOWN
-
-I expended the markdown through add a head, all head example below
-
-```markdown
-
-<!-- +
-title: hello world
-urlid: hello-world
-overview: a hello world sample of extended markdown
-tags: #hello world, #extended markdown
-cate: nornal cate
-image: hello-world.jpg
-lang: en
-+ -->
-
-## title one
-content
-## title two
-content
-
 ```
