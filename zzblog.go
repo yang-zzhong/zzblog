@@ -178,15 +178,21 @@ func (set *MBlogSet) Len() int {
 func (set *MBlogSet) Less(i, j int) bool {
 	for k, v := range set.sort {
 		if k == SC_TIME {
-			if v == ST_ASC {
+			if set.blogs[i].UpdatedAt.Equal(set.blogs[j].UpdatedAt) {
+				continue
+			} else if v == ST_ASC {
 				return set.blogs[i].UpdatedAt.Before(set.blogs[j].UpdatedAt)
+			} else {
+				return set.blogs[j].UpdatedAt.Before(set.blogs[i].UpdatedAt)
 			}
-			return set.blogs[j].UpdatedAt.Before(set.blogs[i].UpdatedAt)
 		} else if k == SC_TITLE {
-			if v == ST_ASC {
+			if set.blogs[i].Title == set.blogs[j].Title {
+				continue
+			} else if v == ST_ASC {
 				return set.blogs[i].Title > set.blogs[j].Title
+			} else {
+				return set.blogs[i].Title < set.blogs[j].Title
 			}
-			return set.blogs[i].Title < set.blogs[j].Title
 		}
 	}
 

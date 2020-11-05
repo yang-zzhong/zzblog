@@ -149,7 +149,7 @@ class List extends Page {
           if (t) {
             animation.play(t);
           }
-        }, 10);
+        }, 20);
       }
       return new Promise(r => r());
     });

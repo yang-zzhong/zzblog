@@ -96,7 +96,7 @@ func (h *ZzblogHttp) registerGetBlogs() {
 		}
 		blogs := h.zz.Filter(func(group *LangGroup) *Blog {
 			return group.One(&OneFilter{lang, cate, tag})
-		}).Page(page, pageSize).Get()
+		}).Sort(SC_TIME, ST_DESC).Sort(SC_TITLE, ST_ASC).Page(page, pageSize).Get()
 		if b, e := json.Marshal(blogs); e != nil {
 			w.InternalError(e)
 		} else {
