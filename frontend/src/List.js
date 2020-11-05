@@ -164,9 +164,9 @@ class List extends Page {
     const bs = [];
     const blogs = this.pc.current.querySelectorAll('[item=true]');
     for(let i = begin; i < blogs.length; ++i) {
-      if (this.isVisible(blogs[i])) {
+      // if (this.isVisible(blogs[i])) {
         bs.push(blogs[i]);
-      }
+      // }
     }
     return bs;
   }
@@ -226,7 +226,7 @@ class List extends Page {
         }, 500);
         r(anis);
         this.hiddenElems(this.aniElems(), false);
-      }, 0);
+      }, 10);
     }).then(anis => this.playAnimation(anis));
   }
 

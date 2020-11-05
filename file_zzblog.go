@@ -89,7 +89,9 @@ func (zz *FileZzblog) build() error {
 	err := TraversingDir(zz.blogDir(), func(file string) {
 		ext := path.Ext(file)
 		if ext == ".md" {
-			zz.addBlog(file)
+			if err := zz.addBlog(file); err != nil {
+				log.Printf("add %s file error: %s", file, err.Error())
+			}
 		}
 	})
 	if err != nil {
@@ -194,7 +196,6 @@ func (zz *FileZzblog) Get(id string, lang string) *Blog {
 func (zz *FileZzblog) AddByReader(r io.Reader) (blog *Blog, err error) {
 	var head md.MdHead
 	if head, err = md.ParseHead(r); err != nil {
-		err = errors.New("read content error")
 		return
 	}
 	blog = new(Blog)

@@ -73,13 +73,7 @@ export default class Page extends React.Component {
   }
 
   isVisible(node) {
-    let r = node.getBoundingClientRect();   
-    let st = helper.window_scroll_top();
-    let sh = helper.screen_height();
-    const visible = (r.y > 0 && r.y < sh) || 
-      (r.y > st && r.y < st + sh) || 
-      (r.y + r.height > st && r.y + r.height < st + sh);
-    return visible;
+    return helper.is_visible(node);
   }
 
   playAnimation(conf) {

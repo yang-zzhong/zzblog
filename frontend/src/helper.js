@@ -50,9 +50,32 @@ export const helper = {
     }
     return pos;
   },
+  is_visible(node) {
+    let r = node.getBoundingClientRect();   
+    let st = helper.window_scroll_top();
+    let sl = helper.window_scroll_left();
+    let sh = helper.screen_height();
+    let sw = helper.screen_width();
+
+    let yv = (r.y > 0 && r.y < sh) || 
+      (r.y + r.height > 0 && r.y + r.height < sh) ||
+      (r.y > st && r.y < st + sh) || 
+      (r.y + r.height > st && r.y + r.height  < st + sh);
+
+    let xv = (r.x > 0 && r.x < sw) ||
+      (r.x + r.width > 0 && r.x + r.width < sw) ||
+      (r.x > sl && r.x < sl + sw) || 
+      (r.x + r.width > sl && r.x + r.width  < sl + sw);
+
+    return yv || xv;
+  },
   window_scroll_top: function() {
     let el = document.scrollingElement || document.documentElement;
     return el.scrollTop;
+  },
+  window_scroll_left: function() {
+    let el = document.scrollingElement || document.documentElement;
+    return el.scrollLeft;
   },
   screen_height: function() {
     if (document.documentElement.clientHeight) {

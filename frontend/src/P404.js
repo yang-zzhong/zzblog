@@ -30,7 +30,7 @@ class P404 extends Page {
             <div className={classes.root}>
               <h2>{strings.blognotfound}</h2>
               <BooLink href='/'>
-                {strings.gotohome}
+                <span>{strings.gotohome}</span>
               </BooLink>
             </div>
           </MainCol>

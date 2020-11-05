@@ -1,4 +1,5 @@
 
+import {helper} from './helper';
 
 export const animation = {
   fade_in: function(nodes) {
@@ -123,15 +124,22 @@ export const animation = {
   },
   play: function(conf) {
     if (conf.node && conf.node.animate) {
-      conf.node.animate(conf.keyframes, conf.time);
+      if (helper.is_visible(conf.node)) {
+        conf.node.animate(conf.keyframes, conf.time);
+      }
     } else if (conf.nodes) {
       let play = (nodes, frames, delay, duration) => {
         if (nodes.length === 0) {
           return new Promise(r => r());
         }
         return new Promise(r => {
+          let node = nodes[0];
+          if (!helper.is_visible(node)) {
+            node.style.visibility = 'visible';
+            play(nodes.slice(1), frames, delay, duration).then(() => r());
+            return;
+          }
           setTimeout(() => {
-            let node = nodes[0];
             node.style.visibility = 'visible';
             node.animate(frames, duration);
             play(nodes.slice(1), frames, delay, duration).then(() => r());
@@ -147,7 +155,7 @@ export const animation = {
         return play(nodes, conf.keyframes, conf.delay, conf.time);
       }
       conf.nodes.forEach(node => {
-        if(node && node.animate) {
+        if(node && node.animate && helper.is_visible(node)) {
           node.animate(conf.keyframes, conf.time);
         }
       });

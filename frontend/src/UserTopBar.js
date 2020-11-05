@@ -9,6 +9,7 @@ import ButtonBase from '@material-ui/core/ButtonBase';
 const styles = (theme => ({
 	root: {
 		backgroundColor: 'var(--card-bg-color)',
+    overflowX: 'hidden',
 		color: 'var(--card-fg-color)',
     boxShadow: '1px 1px 5px var(--shadow-color)',
     display: 'block'
