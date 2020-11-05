@@ -193,6 +193,14 @@ func (set *MBlogSet) Less(i, j int) bool {
 			} else {
 				return set.blogs[i].Title > set.blogs[j].Title
 			}
+		} else if k == SC_ID {
+			if set.blogs[i].URLID == set.blogs[j].URLID {
+				continue
+			} else if v == ST_ASC {
+				return set.blogs[i].URLID < set.blogs[j].URLID
+			} else {
+				return set.blogs[i].URLID > set.blogs[j].URLID
+			}
 		}
 	}
 
