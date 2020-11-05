@@ -189,9 +189,9 @@ func (set *MBlogSet) Less(i, j int) bool {
 			if set.blogs[i].Title == set.blogs[j].Title {
 				continue
 			} else if v == ST_ASC {
-				return set.blogs[i].Title > set.blogs[j].Title
-			} else {
 				return set.blogs[i].Title < set.blogs[j].Title
+			} else {
+				return set.blogs[i].Title > set.blogs[j].Title
 			}
 		}
 	}
