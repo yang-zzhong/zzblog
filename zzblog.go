@@ -17,7 +17,7 @@ type Blog struct {
 	Lang        string    `json:"lang"`
 	Image       string    `json:"image"`
 	PublishedAt time.Time `json:"published_at"`
-	UpdatedAt   time.Time `json:"upadted_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 	file        string
 }
 
@@ -140,15 +140,14 @@ const (
 
 type MBlogSet struct {
 	blogs    []*Blog
-	sort     map[int]int
+	sort     [][]int
 	page     int
 	pageSize int
 }
 
 func NewMBlogSet(blogs []*Blog) *MBlogSet {
 	bs := new(MBlogSet)
-	bs.sort = make(map[int]int)
-	bs.sort[SC_TIME] = ST_DESC
+	bs.sort = [][]int{[]int{SC_TIME, ST_DESC}, []int{SC_ID, ST_ASC}}
 	bs.page = 0
 	bs.pageSize = 10
 	bs.blogs = blogs
@@ -156,12 +155,12 @@ func NewMBlogSet(blogs []*Blog) *MBlogSet {
 }
 
 func (set *MBlogSet) ClearSort() BlogSet {
-	set.sort = make(map[int]int)
+	set.sort = [][]int{}
 	return set
 }
 
 func (set *MBlogSet) Sort(key, t int) BlogSet {
-	set.sort[key] = t
+	set.sort = append(set.sort, []int{key, t})
 	return set
 }
 
@@ -176,7 +175,9 @@ func (set *MBlogSet) Len() int {
 }
 
 func (set *MBlogSet) Less(i, j int) bool {
-	for k, v := range set.sort {
+	for _, sort := range set.sort {
+		k := sort[0]
+		v := sort[1]
 		if k == SC_TIME {
 			if set.blogs[i].UpdatedAt.Equal(set.blogs[j].UpdatedAt) {
 				continue

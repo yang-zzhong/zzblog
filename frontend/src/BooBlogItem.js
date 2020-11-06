@@ -20,12 +20,39 @@ const useStyles = makeStyles(theme =>({
     }
   },
   img: {
-    maxHeight: '100%',
+    maxHeight: '150px',
     width: 'auto',
-    borderRadius: '2px',
-    maxWidth: '50%',
+    visibility: 'hidden',
     [theme.breakpoints.down('sm')]: {
-      width: 'calc(100% - 25px)',
+      width: '100%',
+      maxWidth: '100%'
+    }
+  },
+  content: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    flexWrap: 'no-wrap',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      justifyContent: 'none',
+      alignItems: 'none',
+      flexWrap: 'wrap',
+    }
+  },
+  imgwrapper: {
+    marginRight: '10px',
+    marginBottom: '10px',
+    backgroundPosition: 'center center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    borderRadius: '2px',
+    height: 'auto',
+    display: 'block',
+    maxWidth: '40%',
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+      marginRight: '0px',
       maxWidth: '100%'
     }
   }
@@ -40,10 +67,12 @@ export default function BlogItem(props) {
         <Typography gutterBottom variant="h5" component="h2">
           <span style={{color: 'var(--blog-h-color)'}}>{props.blog.title}</span>
         </Typography>
-        <Typography variant="body2" component="p">
-          {Boolean(props.blog.image) && (
-            <img className={classes.img} alt="img" align="left" hspace="10" vspace="3" src={model.imageUrl(props.blog.image, 300)} />
-          )}
+        <Typography variant="body2" className={classes.content} component="p">
+          <span className={classes.imgwrapper} style={{backgroundImage:"url(" + model.imageUrl(props.blog.image, 300) + ")"}}>
+            {Boolean(props.blog.image) && (
+                <img className={classes.img} alt="img" src={model.imageUrl(props.blog.image, 300)} />
+            )}
+          </span>
           <span style={{color: 'var(--card-fg-color)'}}>{props.blog.overview}</span>
         </Typography>
       </CardContent>

@@ -6,18 +6,21 @@ export const formatter = {
     let now = new Date();
     let next_day = new Date(new Date().setHours(0, 0, 0, 0)) / 1000 + 3600 * 24;
     let sec = 0;
-    if (before > next_day) {
-      return formatter.format_date(time_str);
+    if (before.getTime() / 1000 > next_day) {
+      let r = formatter.format_date(time_str);
+      return r;
     }
-    sec = (now - before) / 1000;
+    sec = (now.getTime() - before) / 1000;
     if (sec <= 3600) {
-      return strings.formatString(strings.minsAgo, {
+      let r = strings.formatString(strings.minsAgo, {
         mins: Math.floor(sec / 60)
       });
+      return r;
     } else if (sec >= 3600 && sec <= 3600 * 24) {
-      return strings.formatString(strings.hoursAgo, {
+      let r = strings.formatString(strings.hoursAgo, {
         hours: Math.floor(sec / 3600)
       });
+      return r;
     }
   },
   format_date: function(time_str) {

@@ -1,7 +1,7 @@
 {
   "en": {
     "__label": "English",
-    "gotohome": "go to home page",
+    "gotohome": "GO TO HOMEPAGE",
     "blognotfound": "Blog Not Found",
     "all": "all",
     "tag": "TAG",
@@ -11,8 +11,10 @@
     "edited_at": "last modified at {time}",
     "loadMore": "LOAD MORE",
     "daysAgo": "{days} days ago",
-    "minsAgo": "{minuts} mins ago",
+    "minsAgo": "{minutes} mins ago",
     "hoursAgo": "{hours} hours ago",
+    "today": "Today",
+    "yesterday": "Yesterday",
     "at": "{days}/{months}/{years}",
     "noMore": "No more data >_<!!"
   },
@@ -26,8 +28,10 @@
     "published": "发表于",
     "edited": "{author}在{time}修改过",
     "edited_at": "{time}修改过",
+    "today": "今天",
+    "yesterday": "昨天",
     "daysAgo": "{days}天前",
-    "minsAgo": "{minuts}分钟前",
+    "minsAgo": "{minutes}分钟前",
     "hoursAgo": "{hours}小时前",
     "at": "{days}/{months}/{years}",
     "loadMore": "加载更多",

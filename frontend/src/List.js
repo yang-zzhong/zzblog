@@ -164,9 +164,7 @@ class List extends Page {
     const bs = [];
     const blogs = this.pc.current.querySelectorAll('[item=true]');
     for(let i = begin; i < blogs.length; ++i) {
-      // if (this.isVisible(blogs[i])) {
-        bs.push(blogs[i]);
-      // }
+      bs.push(blogs[i]);
     }
     return bs;
   }
