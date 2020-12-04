@@ -6,7 +6,7 @@
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "boo-route": "^0.0.8",
-    "highlight.js": "^9.18.3",
+    "highlight.js": "^10.4.1",
     "markdown-to-jsx": "^6.11.4",
     "mathjax": "^2.7.7",
     "md5-es": "^1.8.2",
