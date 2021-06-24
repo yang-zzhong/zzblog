@@ -20,7 +20,7 @@ updated_at: 2020-11-05 21:23:00
 * 良好的支持搜索引擎优化
 * 支持多语言，这种多语言不仅仅是程序支持，而且也支持内容根据不同的语言进行切换。如果我们选择英文，那么整个网站都会呈现英文的内容，包括文章内容也要能够根据语言进行切换
 
-目前这些代码已经用于我的个人博客 [薛定谔的猫](https://ironwell-young.me), 其源代码可以在[github](https://github.com/yang-zzhong/zzblog)找到
+目前这些代码已经用于我的个人博客 [薛定谔的猫](https://udious.com), 其源代码可以在[github](https://github.com/yang-zzhong/zzblog)找到
 
 ## 拓展的MARKDOWN协议
 
