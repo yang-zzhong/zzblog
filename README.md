@@ -13,7 +13,7 @@ updated_at: 2020-11-05 21:23:00
 
 I have wanted a blog system on my taste for a long time, I've designed and implemented it as I had a long rest time after quiting the last job. it included a parser to parse the blog head from a extended markdown syntax. gathering the categories, tags from the blog head to organize the contents.
 
-the product sample on [ironwell young](https://ironwell-young.me),  get the code on [yang-zzhong/zzblog](https://github.com/yang-zzhong/zzblog)
+the product sample on [yang,zhong'home page](https://udious.com),  get the code on [yang-zzhong/zzblog](https://github.com/yang-zzhong/zzblog)
 
 ## extended markdown syntax
 
