@@ -9,6 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import BooSticky from './BooSticky';
 import BooLink from './BooLink';
+import Chip from '@material-ui/core/Chip';
 import {withStyles} from '@material-ui/core/styles';
 import Markdown from 'markdown-to-jsx';
 import hljs from 'highlight.js';
@@ -44,7 +45,7 @@ const style = theme => {
     content: {
       backgroundColor: 'var(--card-bg-color)',
       color: 'var(--card-fg-color)',
-      lineHeight: '1.5',
+      lineHeight: '1.8',
       '& h1': {
         color: 'var(--blog-h-color)',
       },
@@ -90,33 +91,35 @@ const style = theme => {
       },
       '& div code': {
         color: 'rgb(189, 102, 8)',
-        padding: '0px 5px'
+        padding: '0px 5px',
       },
       '& p code': {
         color: 'rgb(189, 102, 8)',
-        padding: '0px 5px'
+        lineHeight: '1.1',
       },
       '& li code': {
         color: 'rgb(189, 102, 8)',
-        padding: '0px 5px'
+        lineHeight: '1.1',
       },
       '& ol code': {
         color: 'rgb(189, 102, 8)',
-        padding: '0px 5px'
+        padding: '0px 5px',
       },
       '& table code': {
         color: 'rgb(189, 102, 8)',
-        padding: '0px 5px'
+        padding: '0px 5px',
       },
       '& blockquote code': {
         color: 'rgb(189, 102, 8)',
-        padding: '0px 5px'
+        padding: '0px 5px',
       },
       '& pre code': {
         overflow: 'auto',
         maxWidth: '100%',
         borderRadius: '3px',
-        padding: '5px'
+        padding: '5px',
+        lineHeight: '1.1',
+        fontSize: '12px'
       },
       '& img': {
         maxWidth: '100%'
@@ -350,7 +353,12 @@ class Blog extends Page {
                 <label className={classes.label}>{strings.tag}: </label>
                  {this.state.blog.tags.map(t => {
                   return (
-                    <BooLink href={'/tags/' + t} className={classes.tag} key={t}>#{t}</BooLink>
+                    <BooLink href={'/tags/' + t} className={classes.tag} key={t}>
+                       <Chip
+                          label={t}
+                          color={t === this.tag ? "secondary" : "primary"}
+                          variant="outlined"/>
+</BooLink>
                   );
                 })}
               </Typography>

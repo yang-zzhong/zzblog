@@ -31,6 +31,8 @@ const useStyles = makeStyles(theme =>({
   content: {
     display: 'flex',
     justifyContent: 'flex-start',
+    lineHeight: '2',
+    fontSize: '16px',
     alignItems: 'flex-start',
     flexWrap: 'no-wrap',
     [theme.breakpoints.down('sm')]: {

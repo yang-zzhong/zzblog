@@ -54,6 +54,10 @@ const styles = (theme => {
       [theme.breakpoints.up('lg')]: {
         left: 'calc(50vw - 500px)',
         width: '1000px'
+      },
+      [theme.breakpoints.up('xl')]: {
+        left: 'calc(50vw - 650px)',
+        width: '1300px'
       }
     },
     mainwrapper: {

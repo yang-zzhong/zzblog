@@ -6,6 +6,7 @@ import {helper} from './helper';
 import  CircularProgress from '@material-ui/core/CircularProgress';
 import BooSticky from './BooSticky';
 import {strings} from './localizer';
+import Chip from '@material-ui/core/Chip';
 import UserTopBar from './UserTopBar';
 import SweetScroll from 'sweet-scroll';
 import Tabs from '@material-ui/core/Tabs';
@@ -32,14 +33,22 @@ const styles = (theme => {
       borderRadius: '0px',
       padding: '10px',
       display: 'flex',
-      justifyContent: 'flex-start',
+      justifyContent: 'center',
       alignItems: 'flex-start',
+      maxHeight: 'calc(100vh - 120px)',
+      overflow: 'auto',
       flexWrap: 'wrap'
     },
     tag: {
-      padding: '5px',
+      padding: '2px 5px',
       display: 'block',
       whiteSpace: 'nowrap'
+    },
+    userTopBar: {
+      marginLeft: '200px',
+      [theme.breakpoints.up('xl')]: {
+        marginLeft: '200px'
+      }
     },
     selected: {
       color: 'red'
@@ -260,7 +269,7 @@ class List extends Page {
     const { classes } = this.props;
     return (
       <div ref={this.pc}>
-        <UserTopBar user={this.state.user} ref={this.anis.user}>
+        <UserTopBar className={classes.userTopBar} user={this.state.user} ref={this.anis.user}>
           <Tabs
             value={this.state.value}
             aria-label="disabled tabs example"
@@ -309,7 +318,10 @@ class List extends Page {
                   {this.state.tags.map(b => {
                     return (
                       <BooLink key={b} className={classes.tag} href={"/tags/" + b}>
-                        <span className={b === this.tag ? classes.selected : ''}>{'#' + b}</span>
+                        <Chip
+                          label={b}
+                          color={b === this.tag ? "secondary" : "primary"}
+                          variant="outlined"/>
                       </BooLink>
                     );
                   })}
