@@ -9,6 +9,5 @@ require (
 	github.com/yang-zzhong/go-httprouter v0.4.0
 	github.com/yang-zzhong/logf v0.0.0-20200908010425-fb66eb03e49e
 	github.com/yang-zzhong/md v0.1.0
-	golang.org/x/image v0.0.0-20200801110659-972c09e46d76
-	gopkg.in/djherbis/times.v1 v1.2.0
+	golang.org/x/image v0.5.0
 )
